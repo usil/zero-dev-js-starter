@@ -46,7 +46,7 @@ const renderList = async () => {
   for (const entity of entitiesResult.data.content.items) {
     const elementToClick = document.querySelector(`#${entity.name}-side`);
     elementToClick.addEventListener('click', () => {
-      if (window.location.pathname !== '/entity/${entity.id}') {
+      if (window.location.pathname !== `/entity/${entity.id}`) {
         const navigationEvent = new Event('navigationEvent');
         document.dispatchEvent(navigationEvent);
         history.pushState('', '', `/entity/${entity.id}`);
