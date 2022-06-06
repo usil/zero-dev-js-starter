@@ -1,6 +1,7 @@
 import { compile, defaultConfig } from 'squirrelly';
 import axios from 'axios';
 import initialize from '../../modules/sidebar';
+import entryTemplate from './entry.component.html';
 
 class EntryComponent {
   constructor() {
@@ -24,9 +25,7 @@ class EntryComponent {
   }
 
   async onRender() {
-    const htmlTemplate = compile(
-      (await import(`./entry.component.html`)).default,
-    );
+    const htmlTemplate = compile(entryTemplate);
     return htmlTemplate(
       { applicationName: this.appName, entities: this.entities },
       defaultConfig,
