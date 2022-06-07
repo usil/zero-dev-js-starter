@@ -6,7 +6,6 @@ import entryTemplate from './entry.component.html';
 class EntryComponent {
   constructor() {
     this.appName = '';
-    this.entities = [];
   }
 
   async onInit() {
@@ -16,26 +15,20 @@ class EntryComponent {
       `http://localhost:2111/api/application/1?access_token=${access_key}`,
     );
 
-    const entitiesResult = await axios.get(
-      `http://localhost:2111/api/entity?access_token=${access_key}`,
-    );
-
     this.appName = applicationResult.data.content.name;
-    this.entities = entitiesResult.data.content.items;
   }
 
   async onRender() {
     const htmlTemplate = compile(entryTemplate);
-    return htmlTemplate(
-      { applicationName: this.appName, entities: this.entities },
-      defaultConfig,
-    );
+    return htmlTemplate({ applicationName: this.appName }, defaultConfig);
   }
 
   async afterRender() {
-    feather.replace();
-    window.feather = feather;
     initialize();
+    const event = new CustomEvent('default', {
+      detail: { componentName: 'entitiesList', renderOnId: 'entities-list' },
+    });
+    document.dispatchEvent(event);
   }
 }
 

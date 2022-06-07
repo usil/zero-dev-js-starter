@@ -1,8 +1,10 @@
 import EntryComponent from '../components/entryComponent/entry.component';
+import EntitiesListComponent from '../components/entitiesList/entities-list.component';
 import $ from 'jquery';
 
 const components = {
   entry: EntryComponent,
+  entitiesList: EntitiesListComponent,
 };
 
 class ComponentOrchestration {
