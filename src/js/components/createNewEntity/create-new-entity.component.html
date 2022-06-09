@@ -1,0 +1,41 @@
+<form id="form-inner" class="row gx-4 gy-4">
+  {{@each(it.inputFields) => val, index}}
+  <div class="col-6">
+    <label for="exampleInputEmail1" class="form-label">{{ val.label }}</label>
+    <input
+      name="{{ val.name }}"
+      type="text"
+      class="form-control"
+      id="inp-{{ val.name }}"
+    />
+    <div id="emailHelp" class="form-text">
+      {{ val.tooltip }}
+    </div>
+  </div>
+  {{/each}}
+  <!-- <div class="col-6">
+    <label for="exampleInputEmail1" class="form-label">Email address</label>
+    <input
+      type="email"
+      class="form-control"
+      id="exampleInputEmail1"
+      aria-describedby="emailHelp"
+    />
+    <div id="emailHelp" class="form-text">
+      We'll never share your email with anyone else.
+    </div>
+  </div>
+  <div class="col-6">
+    <label for="exampleInputEmail1" class="form-label">Email address</label>
+    <input
+      type="email"
+      class="form-control"
+      id="exampleInputEmail1"
+      aria-describedby="emailHelp"
+    />
+    <div id="emailHelp" class="form-text">
+      We'll never share your email with anyone else.
+    </div>
+  </div>-->
+  <button type="submit" class="btn btn-primary col-12 mx-2">Submit</button>
+</form>

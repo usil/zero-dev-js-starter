@@ -1,7 +1,7 @@
 <li class="sidebar-header">Entities</li>
 {{@each(it.entities) => val, index}}
 <li class="sidebar-item active">
-  <div class="sidebar-link" id="{{ val.name }}">
+  <div class="sidebar-link" id="side-nav-{{ val.id }}">
     <i class="align-middle" data-feather="sliders"></i>
     <span class="align-middle">{{ val.name }}</span>
   </div>

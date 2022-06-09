@@ -1,3 +1,6 @@
+require('dotenv').config();
+const EnvSettings = require('./node_modules/advanced-settings').EnvSettings;
+const envSettings = new EnvSettings();
 const Webpack = require('webpack');
 const Path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -118,6 +121,16 @@ module.exports = {
     },
   },
   devServer: {
+    onBeforeSetupMiddleware: (devServer) => {
+      if (!devServer) {
+        throw new Error('webpack-dev-server is not defined');
+      }
+
+      devServer.app.get('/settings.json', function (_req, res) {
+        const settings = envSettings.loadJsonFileSync('./settings.json');
+        res.json(settings);
+      });
+    },
     static: {
       directory: Path.join(__dirname, 'static'),
     },

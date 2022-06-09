@@ -1,7 +1,8 @@
 import axios from 'axios';
 import entitiesListTemplate from './entities-list.component.html';
 import feather from 'feather-icons';
-import { generateHTML } from '../../helpers/helpers';
+import { generateHTML, sendDefaultEvent } from '../../helpers/helpers';
+import $ from 'jquery';
 
 class EntitiesListComponent {
   constructor() {
@@ -9,7 +10,7 @@ class EntitiesListComponent {
   }
 
   async onInit() {
-    const access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiUjlRa1YzS1ZJT0E1UHBvSDBLa0s6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU0NTQzNzc3LCJleHAiOjE2NTQ2MzAxNzd9.fNu97ehQiO4VE1UE817TZOa0yI5DNNn1e0gDqgbG7Ds`;
+    const access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU0NzMyNTEwLCJleHAiOjE2NTQ4MTg5MTB9.ZYfpX-0wExAcXDqPwHF0xSzjotYn0ysPn7AT2L4BM_A`;
 
     const entitiesResult = await axios.get(
       `http://localhost:2111/api/entity?access_token=${access_key}`,
@@ -25,6 +26,12 @@ class EntitiesListComponent {
   async afterRender() {
     feather.replace();
     window.feather = feather;
+
+    for (const entity of this.entities) {
+      $(`#side-nav-${entity.id}`).on('click', () => {
+        sendDefaultEvent('entity', 'main-container', { id: entity.id });
+      });
+    }
   }
 }
 
