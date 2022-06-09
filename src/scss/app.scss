@@ -36,6 +36,8 @@
 
 @import '~datatables.net-bs5/css/dataTables.bootstrap5';
 @import 'pagination';
+@import '~bootstrap/scss/alert';
+
 // Theme mixins
 @import '2-mixins/button';
 
@@ -71,3 +73,6 @@
 // 3rd party plugin styles
 @import '5-vendor/flatpickr';
 @import '5-vendor/simplebar';
+
+@import '~awesome-notifications/src/styles/animations';
+@import '~awesome-notifications/dist/style';
