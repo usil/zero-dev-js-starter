@@ -2,6 +2,8 @@
   {{@each(it.inputFields) => val, index}}
   <div class="col-6">
     <label for="exampleInputEmail1" class="form-label">{{ val.label }}</label>
+
+    <!-- Adds input text -->
     {{@if(val.typeName === "text")}}
     <input
       name="{{ val.name }}"
@@ -10,6 +12,28 @@
       id="inp-{{ val.name }}"
     />
     {{/if}}
+    <!-- Adds text area -->
+    {{@if(val.typeName === "textarea")}}
+    <textarea
+      name="{{ val.name }}"
+      class="form-control"
+      id="inp-{{ val.name }}"
+    ></textarea>
+    {{/if}}
+    <!-- Adds select -->
+    {{@if(val.typeName === "select")}}
+    <select
+      name="{{ val.name }}"
+      id="inp-{{ val.name }}"
+      class="form-select"
+      aria-label="Default select example"
+    >
+      {{@each(val.possibleData) => data, index}}
+      <option value="{{ data.value }}">{{ data.displayValue }}</option>
+      {{/each}}
+    </select>
+    {{/if}}
+
     <div id="emailHelp" class="form-text">
       {{ val.tooltip }}
     </div>

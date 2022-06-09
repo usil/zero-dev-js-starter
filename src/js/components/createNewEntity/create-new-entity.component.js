@@ -16,11 +16,13 @@ class CreateNewEntityComponent {
     this.access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU0NzMyNTEwLCJleHAiOjE2NTQ4MTg5MTB9.ZYfpX-0wExAcXDqPwHF0xSzjotYn0ysPn7AT2L4BM_A`;
 
     const inputFieldsResult = await axios.post(
-      `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}&pagination=false`,
+      `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
       {
         dbQuery: `SELECT 
         field.id, field.entityId, field.name, field_input_visual_configuration.label, field_input_visual_configuration.disabled, 
-        field_input_visual_configuration.visible, field_input_visual_configuration.tooltip, input_type.typeName, field_input_visual_configuration.validatorsConfiguration as rules
+        field_input_visual_configuration.visible, field_input_visual_configuration.tooltip, input_type.typeName, field.dataOriginId,
+        field_input_visual_configuration.validatorsConfiguration as rules, field_input_visual_configuration.usePossibleValuesFromDatabase as useDatabase,
+        field_input_visual_configuration.id as fieldInputVisualConfigurationId
         FROM field
         JOIN field_input_visual_configuration
         ON field_input_visual_configuration.fieldId = field.id
@@ -33,6 +35,58 @@ class CreateNewEntityComponent {
     this.inputFields = inputFieldsResult.data.content[0].filter(
       (inputField) => inputField.visible,
     );
+
+    for (const input of this.inputFields) {
+      if (!input.useDatabase && input.typeName === 'select') {
+        const possibleValues = await axios.post(
+          `http://localhost:2111/api/possible_value/query?access_token=${this.access_key}&pagination=false`,
+          {
+            filters: [
+              {
+                column: 'fieldInputVisualConfigurationId',
+                value: input.fieldInputVisualConfigurationId,
+                operation: '=',
+                negate: false,
+              },
+            ],
+          },
+        );
+        input['possibleData'] = possibleValues.data.content.map((pd) => {
+          return { value: pd.value, displayValue: pd.displayValue };
+        });
+      } else if (input.useDatabase && input.typeName === 'select') {
+        const dataBaseForeignRelationResult = await axios.post(
+          `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
+          {
+            dbQuery: `SELECT 
+            foreign_relation.foreignTableName, 
+            foreign_relation.foreignPrimaryKey, 
+            foreign_relation.foreignFieldToShow 
+            FROM data_base_origin
+            JOIN foreign_relation
+            ON data_base_origin.foreignRelationId = foreign_relation.id
+            WHERE data_base_origin.dataOriginId = ${input.dataOriginId};`,
+          },
+        );
+
+        const dataBaseForeignRelation =
+          dataBaseForeignRelationResult.data.content[0][0];
+
+        const possibleValuesFromDataBase = await axios.post(
+          `http://localhost:2111/api/${dataBaseForeignRelation.foreignTableName}/query?access_token=${this.access_key}&pagination=false`,
+          {},
+        );
+
+        input['possibleData'] = possibleValuesFromDataBase.data.content.map(
+          (pd) => {
+            return {
+              value: pd[dataBaseForeignRelation.foreignPrimaryKey],
+              displayValue: pd[dataBaseForeignRelation.foreignFieldToShow],
+            };
+          },
+        );
+      }
+    }
   }
 
   async onRender() {
@@ -50,7 +104,6 @@ class CreateNewEntityComponent {
         const input = inputs[inputName];
         dataToSend[inputName] = input.val();
       }
-      console.log(dataToSend);
       const result = await axios.post(
         `http://localhost:2111/api/${this.entity.name}?access_token=${this.access_key}`,
         {
@@ -63,6 +116,7 @@ class CreateNewEntityComponent {
       );
       if (result.data.content && result.data.content.length === 1) {
         this.notifier.success(`${this.entity.name} added!!`);
+        $('form')[0].reset();
       } else {
         this.notifier.alert(
           `Unknown error, could not add the ${this.entity.name}`,
