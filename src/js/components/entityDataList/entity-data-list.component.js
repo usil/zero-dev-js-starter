@@ -4,7 +4,7 @@ import axios from 'axios';
 import $ from 'jquery';
 import 'datatables.net-bs5';
 import 'datatables.net-buttons-bs5';
-
+import 'material-icons/iconfont/material-icons.css';
 class EntityDataListComponent {
   constructor(variables) {
     this.currentDraw = 0;
@@ -57,7 +57,7 @@ class EntityDataListComponent {
     $('#entity-data-table').DataTable({
       ordering: false,
       info: false,
-      searching: false,
+      searching: true,
       processing: true,
       serverSide: true,
       retrieve: true,
@@ -83,11 +83,16 @@ class EntityDataListComponent {
           return JSON.stringify(json);
         },
       },
-      columns: this.fields.map((f) => {
-        return {
-          data: f.name,
-        };
-      }),
+      columns: [
+        ...this.fields.map((f) => {
+          return {
+            data: f.name,
+          };
+        }),
+        {
+          defaultContent: `<span class="material-icons">pie_chart</span>`,
+        },
+      ],
     });
   }
 
