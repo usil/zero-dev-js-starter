@@ -1,25 +1,33 @@
-import createNewEntityTemplate from './create-new-entity.component.html';
-import { generateHTML } from '../../helpers/helpers';
+import editEntityTemplate from './edit-entity.component.html';
+import { generateHTML, sendDefaultEvent } from '../../helpers/helpers';
 import axios from 'axios';
 import $ from 'jquery';
 import AWN from 'awesome-notifications';
 import 'jquery-validation';
 
-class CreateNewEntityComponent {
+class EditEntityComponent {
   constructor(variables) {
     this.notifier = new AWN({ icons: { enabled: false } });
     this.currentDraw = 0;
     this.entity = variables.entity;
+    this.identifier = variables.identifier;
+    this.columnIdentifier = variables.columnIdentifier;
   }
 
   async onInit() {
     this.access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU0ODczNTkzLCJleHAiOjE2NTQ5NTk5OTN9.2WysKWyaOmgcxveWgvbDgxF0zY3H5eo0ptuyGQdf6KI`;
 
+    const currentDataResult = await axios.get(
+      `http://localhost:2111/api/${this.entity.name}/${this.identifier}?access_token=${this.access_key}&identifierColumn=${this.columnIdentifier}`,
+    );
+
+    this.currentEntityData = currentDataResult.data.content;
+
     const inputFieldsResult = await axios.post(
       `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
       {
         dbQuery: `SELECT 
-        field.id, field.entityId, field.name, field_input_visual_configuration.label, field_input_visual_configuration.disabled, 
+        field.id, field.entityId, field.name, field_input_visual_configuration.label, field_input_visual_configuration.disabled, field_input_visual_configuration.editable,
         field_input_visual_configuration.visible, field_input_visual_configuration.tooltip, input_type.typeName, field.dataOriginId,
         field_input_visual_configuration.validatorsConfiguration as rules, field_input_visual_configuration.usePossibleValuesFromDatabase as useDatabase,
         field_input_visual_configuration.id as fieldInputVisualConfigurationId
@@ -32,9 +40,16 @@ class CreateNewEntityComponent {
       },
     );
 
-    this.inputFields = inputFieldsResult.data.content[0].filter(
-      (inputField) => inputField.visible,
-    );
+    this.inputFields = [];
+
+    for (const inputField of inputFieldsResult.data.content[0]) {
+      if (inputField.visible && inputField.editable) {
+        inputField['currentValue'] = this.currentEntityData[inputField.name];
+        this.inputFields.push(inputField);
+      }
+    }
+
+    console.log(this.inputFields);
 
     for (const input of this.inputFields) {
       if (!input.useDatabase && input.typeName === 'select') {
@@ -90,7 +105,7 @@ class CreateNewEntityComponent {
   }
 
   async onRender() {
-    return generateHTML(createNewEntityTemplate, {
+    return generateHTML(editEntityTemplate, {
       inputFields: this.inputFields,
       entity: this.entity,
     });
@@ -98,27 +113,26 @@ class CreateNewEntityComponent {
 
   async manageSubmit(inputs) {
     $('#s-btn').prop('disabled', true);
+
     const dataToSend = {};
+
     for (const inputName in inputs) {
       const input = inputs[inputName];
       dataToSend[inputName] = input.val();
     }
 
     this.notifier.asyncBlock(
-      axios.post(
-        `http://localhost:2111/api/${this.entity.name}?access_token=${this.access_key}`,
+      axios.put(
+        `http://localhost:2111/api/${this.entity.name}/${this.identifier}?access_token=${this.access_key}&identifierColumn=${this.columnIdentifier}`,
         {
-          inserts: [
-            {
-              ...dataToSend,
-            },
-          ],
+          ...dataToSend,
         },
       ),
       () => {
-        $('form')[0].reset();
-        $('#s-btn').removeAttr('disabled');
-        this.notifier.success(`${this.entity.name} added!!`);
+        this.notifier.success(`${this.entity.name} updated!!`);
+        sendDefaultEvent('entityDataList', 'entity-content', {
+          entity: this.entity,
+        });
       },
       (error) => {
         $('form')[0].reset();
@@ -157,4 +171,4 @@ class CreateNewEntityComponent {
   async onDestroy() {}
 }
 
-export default CreateNewEntityComponent;
+export default EditEntityComponent;

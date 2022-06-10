@@ -35,6 +35,8 @@
 @import '~bootstrap/scss/utilities/api';
 
 @import '~datatables.net-bs5/css/dataTables.bootstrap5';
+@import '~datatables.net-buttons-bs5/css/buttons.bootstrap5';
+
 @import 'pagination';
 @import '~bootstrap/scss/alert';
 
@@ -78,3 +80,15 @@
 @import '~awesome-notifications/dist/style';
 
 @import '~material-icons/css/material-icons';
+
+.editor-delete,
+.editor-edit {
+  span:hover {
+    color: #326abc;
+    cursor: pointer;
+  }
+}
+
+.dataTables_length {
+  margin-top: 10px;
+}
