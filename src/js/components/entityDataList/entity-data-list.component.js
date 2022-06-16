@@ -22,7 +22,7 @@ class EntityDataListComponent {
   }
 
   async onInit() {
-    this.access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU1MTI5MzMzLCJleHAiOjE2NTUyMTU3MzN9.N1Vvk1thu2X4tVJL35sPW95Ee0CFjrNeHHuUkvw1e2g`;
+    this.access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU1MzI5NjA3LCJleHAiOjE2NTU0MTYwMDd9.D3B9_gyXvAntzIheFOmblSg1o8FIF3SvSc3fzD49ngM`;
 
     const fields = await axios.post(
       `http://localhost:2111/api/field/query?access_token=${this.access_key}&pagination=false`,
@@ -99,7 +99,7 @@ class EntityDataListComponent {
   }
 
   async afterRender() {
-    this.url = `http://localhost:2111/api/${this.entity.name}?access_token=${this.access_key}&orderByColumn=${this.fields[0].name}`;
+    this.url = `http://localhost:2111/api/${this.entity.name}/query?access_token=${this.access_key}`;
 
     this.table = $('#entity-data-table').DataTable({
       dom: 'Blfrtip',
@@ -128,7 +128,7 @@ class EntityDataListComponent {
       ],
       ordering: false,
       info: false,
-      searching: false,
+      searching: true,
       processing: true,
       serverSide: true,
       retrieve: true,
@@ -136,26 +136,72 @@ class EntityDataListComponent {
         [5, 10, 25, 50, -1],
         [5, 10, 25, 50, 'All'],
       ],
+      initComplete: function () {
+        // Apply the search
+        const that = this;
+        $('.search-inputs input').on('keydown', (ev) => {
+          const parent = $(ev.target).parent();
+          const inputs = parent.children();
+          if (ev.key === 'Enter') {
+            const searchObject = {
+              operation: inputs[1].value,
+              value: inputs[0].value,
+            };
+
+            const columnIndex = parseInt(parent.attr('dtc'));
+
+            that
+              .api()
+              .columns(columnIndex)
+              .search(
+                inputs[0].value === '' ? '' : JSON.stringify(searchObject),
+              )
+              .draw();
+          }
+        });
+      },
       ajax: {
         url: this.url,
+        type: 'POST',
         dataSrc: 'content.items',
         data: (d) => {
           this.currentDraw = d.draw;
-          d.itemsPerPage = d.length;
-          d.pageIndex = this.parsePageIndex(d.start, d.length);
+          const fieldToFind = this.fields.map((f) => f.name);
+          let filters = [];
+
+          for (const column of d.columns) {
+            if (column.search.value !== '') {
+              const search = JSON.parse(column.search.value);
+              filters.push({
+                column: column.data,
+                value: search.value,
+                operation: search.operation,
+                negate: false,
+                operator: 'and',
+              });
+            }
+          }
+          return {
+            pagination: {
+              pagination: true,
+              itemsPerPage: d.length,
+              pageIndex: this.parsePageIndex(d.start, d.length),
+            },
+            fields: fieldToFind,
+            filters,
+          };
         },
         dataFilter: (data) => {
           const json = JSON.parse(data);
-
           json.recordsTotal = json.content.totalItems;
           json.recordsFiltered = json.content.totalItems;
           json.draw = this.currentDraw;
-
           return JSON.stringify(json);
         },
       },
       columns: [
         ...this.fields.map((f) => {
+          console.log(f);
           return {
             data: f.name,
           };
@@ -189,6 +235,18 @@ class EntityDataListComponent {
         identifier: data,
         columnIdentifier: this.fields[0].name,
       });
+    });
+
+    $('#entity-data-table thead tr:eq(0) th').each((i, h) => {
+      const title = $(h).text();
+      $(h).html(
+        `<div class="search-inputs" dtc="${i}">` +
+          '<input class="form-control" type="text" placeholder="Search ' +
+          title +
+          '" />' +
+          '<input value="=" class="form-control" type="text" placeholder="Filter" />' +
+          '</div>',
+      );
     });
   }
 
