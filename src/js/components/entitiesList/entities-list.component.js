@@ -10,10 +10,53 @@ class EntitiesListComponent {
   }
 
   async onInit() {
-    const access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU1MzI5NjA3LCJleHAiOjE2NTU0MTYwMDd9.D3B9_gyXvAntzIheFOmblSg1o8FIF3SvSc3fzD49ngM`;
+    const applicationId = window.variables.applicationId;
+    const access_key =
+      window.variables.extraSettings.signedUserDetails.accessToken;
 
-    const entitiesResult = await axios.get(
-      `http://localhost:2111/api/entity?access_token=${access_key}`,
+    const businessUnits =
+      window.variables.extraSettings.signedUserDetails.businessUnits;
+
+    const radBusinessUnite = businessUnits.find(
+      (bu) => bu.identifier === 'radUnit',
+    );
+
+    console.log(radBusinessUnite);
+
+    const radProfile = radBusinessUnite.profiles.find(
+      (rbu) => rbu.identifier === 'radProfile',
+    );
+
+    const rolesWebOptions = [];
+
+    for (const role of radProfile.roles) {
+      for (const option of role.options) {
+        if (option.type === 'WEB_OPTION') {
+          rolesWebOptions.push({
+            column: 'name',
+            value: option.value,
+            operation: '=',
+            negate: false,
+            operator: 'or',
+          });
+        }
+      }
+    }
+
+    const entitiesResult = await axios.post(
+      `http://localhost:2111/api/entity/query?access_token=${access_key}`,
+      {
+        filters: [
+          ...rolesWebOptions,
+          {
+            column: 'applicationId',
+            value: applicationId,
+            operation: '=',
+            negate: false,
+            operator: 'and',
+          },
+        ],
+      },
     );
 
     this.entities = entitiesResult.data.content.items;

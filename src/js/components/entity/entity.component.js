@@ -9,7 +9,8 @@ class EntityComponent {
   }
 
   async onInit() {
-    const access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU1MzI5NjA3LCJleHAiOjE2NTU0MTYwMDd9.D3B9_gyXvAntzIheFOmblSg1o8FIF3SvSc3fzD49ngM`;
+    const access_key =
+      window.variables.extraSettings.signedUserDetails.accessToken;
 
     const entityResult = await axios.get(
       `http://localhost:2111/api/entity/${this.id}?access_token=${access_key}`,

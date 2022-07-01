@@ -15,7 +15,8 @@ class EditEntityComponent {
   }
 
   async onInit() {
-    this.access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU1MzI5NjA3LCJleHAiOjE2NTU0MTYwMDd9.D3B9_gyXvAntzIheFOmblSg1o8FIF3SvSc3fzD49ngM`;
+    this.access_key =
+      window.variables.extraSettings.signedUserDetails.accessToken;
 
     const currentDataResult = await axios.get(
       `http://localhost:2111/api/${this.entity.name}/${this.identifier}?access_token=${this.access_key}&identifierColumn=${this.columnIdentifier}`,
@@ -27,15 +28,15 @@ class EditEntityComponent {
       `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
       {
         dbQuery: `SELECT 
-        field.id, field.entityId, field.name, field_input_visual_configuration.label, field_input_visual_configuration.disabled, field_input_visual_configuration.editable,
-        field_input_visual_configuration.visible, field_input_visual_configuration.tooltip, input_type.typeName, field.dataOriginId,
-        field_input_visual_configuration.validatorsConfiguration as rules, field_input_visual_configuration.usePossibleValuesFromDatabase as useDatabase,
-        field_input_visual_configuration.id as fieldInputVisualConfigurationId
+        field.id, field.entityId, field.name, field_input_configuration.label, field_input_configuration.disabled, field_input_configuration.editable,
+        field_input_configuration.visible, field_input_configuration.tooltip, input_type.typeName, field.dataOriginId,
+        field_input_configuration.validatorsConfiguration as rules, field_input_configuration.usePossibleValuesFromDatabase as useDatabase,
+        field_input_configuration.id as fieldInputVisualConfigurationId
         FROM field
-        JOIN field_input_visual_configuration
-        ON field_input_visual_configuration.fieldId = field.id
+        JOIN field_input_configuration
+        ON field_input_configuration.fieldId = field.id
         JOIN input_type
-        ON field_input_visual_configuration.inputTypeId = input_type.id
+        ON field_input_configuration.inputTypeId = input_type.id
         WHERE field.entityId = ${this.entity.id};`,
       },
     );

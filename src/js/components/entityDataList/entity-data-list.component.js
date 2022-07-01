@@ -22,7 +22,8 @@ class EntityDataListComponent {
   }
 
   async onInit() {
-    this.access_key = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoidVVkY0E3eVhnNTBTRUcwMlFrbWc6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU1MzI5NjA3LCJleHAiOjE2NTU0MTYwMDd9.D3B9_gyXvAntzIheFOmblSg1o8FIF3SvSc3fzD49ngM`;
+    this.access_key =
+      window.variables.extraSettings.signedUserDetails.accessToken;
 
     const fields = await axios.post(
       `http://localhost:2111/api/field/query?access_token=${this.access_key}&pagination=false`,
