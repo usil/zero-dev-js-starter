@@ -22,8 +22,35 @@ class EntityDataListComponent {
   }
 
   async onInit() {
-    this.access_key =
-      window.variables.extraSettings.signedUserDetails.accessToken;
+    const signedUserDetails = window.variables.extraSettings.signedUserDetails;
+
+    const businessUnits = signedUserDetails.businessUnits;
+
+    const radBusinessUnite = businessUnits.find(
+      (bu) => bu.identifier === 'radUnit',
+    );
+
+    const radProfile = radBusinessUnite.profiles.find(
+      (rbu) => rbu.identifier === 'radProfile',
+    );
+
+    const fieldCrudConfig = [];
+
+    for (const role of radProfile.roles) {
+      for (const option of role.options) {
+        if (option.type === 'INTERNAL_RULE') {
+          const optionValueArray = option.value.split('::');
+          if (optionValueArray[0] === this.entity.name) {
+            fieldCrudConfig.push({
+              field: optionValueArray[1],
+              crudValue: optionValueArray[2],
+            });
+          }
+        }
+      }
+    }
+
+    this.access_key = signedUserDetails.accessToken;
 
     const fields = await axios.post(
       `http://localhost:2111/api/field/query?access_token=${this.access_key}&pagination=false`,
@@ -39,7 +66,62 @@ class EntityDataListComponent {
       },
     );
 
-    this.fields = fields.data.content.filter((f) => f.visibleOnList);
+    const preFields = fields.data.content;
+
+    this.fields = [];
+
+    for (const preField of preFields) {
+      const indexOfField = fieldCrudConfig.findIndex(
+        (fc) => fc.field === preField.name,
+      );
+      if (
+        (indexOfField > -1 &&
+          fieldCrudConfig[indexOfField].crudValue.includes('R')) ||
+        indexOfField === -1
+      ) {
+        const fullFieldQuery = await axios.post(
+          `http://localhost:2111/api/fields_list_configuration/query?access_token=${this.access_key}&pagination=false`,
+          {
+            filters: [
+              {
+                column: 'fieldId',
+                value: preField.id,
+                operation: '=',
+                negate: false,
+              },
+            ],
+          },
+        );
+
+        const fieldListConfiguration = fullFieldQuery.data.content[0];
+
+        const fieldFilterConfiguration = await axios.post(
+          `http://localhost:2111/api/filter_configuration/query?access_token=${this.access_key}&pagination=false`,
+          {
+            filters: [
+              {
+                column: 'fieldsListConfigurationId',
+                value: fieldListConfiguration.id,
+                operation: '=',
+                negate: false,
+              },
+            ],
+          },
+        );
+
+        this.fields.push({
+          ...preField,
+          fieldListConfiguration: {
+            ...fieldListConfiguration,
+            filter: fieldFilterConfiguration.data.content[0] || null,
+          },
+        });
+      }
+    }
+
+    console.log(this.fields);
+
+    // this.fields = fields.data.content.filter((f) => f.visibleOnList);
 
     const entityDataResult = await axios.get(
       `http://localhost:2111/api/${this.entity.name}?access_token=${this.access_key}&orderByColumn=${this.fields[0].name}`,
@@ -138,12 +220,12 @@ class EntityDataListComponent {
         [5, 10, 25, 50, 'All'],
       ],
       initComplete: function () {
-        // Apply the search
         const that = this;
-        $('.search-inputs input').on('keydown', (ev) => {
+
+        const eventHandler = (ev) => {
           const parent = $(ev.target).parent();
           const inputs = parent.children();
-          if (ev.key === 'Enter') {
+          if (ev.key === 'Enter' || ev.type === 'change') {
             const searchObject = {
               operation: inputs[1].value,
               value: inputs[0].value,
@@ -159,7 +241,11 @@ class EntityDataListComponent {
               )
               .draw();
           }
-        });
+        };
+
+        $('.search-inputs input').on('keydown', eventHandler);
+
+        $('.search-inputs select').on('change', eventHandler);
       },
       ajax: {
         url: this.url,
@@ -238,14 +324,37 @@ class EntityDataListComponent {
       });
     });
 
+    const searchOperations = ['=', '>', '<', 'like'];
+
     $('#entity-data-table thead tr:eq(0) th').each((i, h) => {
+      const filterData = this.fields[i].fieldListConfiguration.filter;
+
       const title = $(h).text();
       $(h).html(
         `<div class="search-inputs" dtc="${i}">` +
-          '<input class="form-control" type="text" placeholder="Search ' +
+          `<input value="${filterData ? filterData.defaultValue : ''}" ${
+            filterData && (!filterData.editable || filterData.disabled)
+              ? 'disabled'
+              : ''
+          } class="form-control" type="text" placeholder="Search ` +
           title +
           '" />' +
-          '<input value="=" class="form-control" type="text" placeholder="Filter" />' +
+          `<select ${
+            filterData && (!filterData.editable || filterData.disabled)
+              ? 'disabled'
+              : ''
+          } class="form-control"placeholder="Filter">
+            ${
+              filterData === null || filterData.operations === 'all'
+                ? searchOperations.map(
+                    (so) => `<option value="${so}">${so}</option>`,
+                  )
+                : filterData.operations
+                    .split('::')
+                    .map((so) => `<option value="${so}">${so}</option>`)
+            }
+           
+          </select>` +
           '</div>',
       );
     });

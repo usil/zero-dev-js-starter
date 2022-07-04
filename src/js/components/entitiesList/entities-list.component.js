@@ -21,8 +21,6 @@ class EntitiesListComponent {
       (bu) => bu.identifier === 'radUnit',
     );
 
-    console.log(radBusinessUnite);
-
     const radProfile = radBusinessUnite.profiles.find(
       (rbu) => rbu.identifier === 'radProfile',
     );

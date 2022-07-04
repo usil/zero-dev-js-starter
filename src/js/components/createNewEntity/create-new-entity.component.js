@@ -13,21 +13,22 @@ class CreateNewEntityComponent {
   }
 
   async onInit() {
-    this.access_key =
-      window.variables.extraSettings.signedUserDetails.accessToken;
+    const signedUserDetails = window.variables.extraSettings.signedUserDetails;
+
+    this.access_key = signedUserDetails.accessToken;
 
     const inputFieldsResult = await axios.post(
       `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
       {
         dbQuery: `SELECT 
         field.id, field.entityId, field.name, field_input_configuration.label, field_input_configuration.disabled, 
-        field_input_configuration.visible, field_input_configuration.tooltip, input_type.typeName, field.dataOriginId,
+        field_input_configuration.visible, field_input_configuration.tooltip, input_type.typeName, field.dataBaseOriginId,
         field_input_configuration.validatorsConfiguration as rules, field_input_configuration.usePossibleValuesFromDatabase as useDatabase,
         field_input_configuration.id as fieldInputVisualConfigurationId
         FROM field
         JOIN field_input_configuration
         ON field_input_configuration.fieldId = field.id
-        JOIN input_type
+        JOIN zzzz
         ON field_input_configuration.inputTypeId = input_type.id
         WHERE field.entityId = ${this.entity.id};`,
       },
