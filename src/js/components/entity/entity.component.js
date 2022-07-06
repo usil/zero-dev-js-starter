@@ -9,11 +9,13 @@ class EntityComponent {
   }
 
   async onInit() {
+    this.zeroCodeBaseApi = window.variables.zeroCodeBaseApi;
+
     const access_key =
       window.variables.extraSettings.signedUserDetails.accessToken;
 
     const entityResult = await axios.get(
-      `http://localhost:2111/api/entity/${this.id}?access_token=${access_key}`,
+      `${this.zeroCodeBaseApi}/api/entity/${this.id}?access_token=${access_key}`,
     );
 
     this.entity = entityResult.data.content;

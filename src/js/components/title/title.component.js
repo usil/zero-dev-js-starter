@@ -8,13 +8,15 @@ class TitleComponent {
   }
 
   async onInit() {
+    this.zeroCodeBaseApi = window.variables.zeroCodeBaseApi;
+
     const applicationId = window.variables.applicationId;
 
     const access_key =
       window.variables.extraSettings.signedUserDetails.accessToken;
 
     const applicationResult = await axios.get(
-      `http://localhost:2111/api/application/${applicationId}?access_token=${access_key}`,
+      `${this.zeroCodeBaseApi}/api/application/${applicationId}?access_token=${access_key}`,
     );
 
     this.appName = applicationResult.data.content.name;

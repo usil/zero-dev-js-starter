@@ -1,4 +1,5 @@
 import editEntityTemplate from './edit-entity.component.html';
+import parseDefaultString from '../../helpers/parseDefaultString';
 import { generateHTML, sendDefaultEvent } from '../../helpers/helpers';
 import axios from 'axios';
 import $ from 'jquery';
@@ -15,47 +16,99 @@ class EditEntityComponent {
   }
 
   async onInit() {
-    this.access_key =
-      window.variables.extraSettings.signedUserDetails.accessToken;
+    this.zeroCodeBaseApi = window.variables.zeroCodeBaseApi;
 
-    const currentDataResult = await axios.get(
-      `http://localhost:2111/api/${this.entity.name}/${this.identifier}?access_token=${this.access_key}&identifierColumn=${this.columnIdentifier}`,
+    const signedUserDetails = window.variables.extraSettings.signedUserDetails;
+
+    this.access_key = signedUserDetails.accessToken;
+
+    const businessUnits = signedUserDetails.businessUnits;
+
+    const radBusinessUnite = businessUnits.find(
+      (bu) => bu.identifier === 'radUnit',
     );
 
-    this.currentEntityData = currentDataResult.data.content;
-
-    const inputFieldsResult = await axios.post(
-      `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
-      {
-        dbQuery: `SELECT 
-        field.id, field.entityId, field.name, field_input_configuration.label, field_input_configuration.disabled, field_input_configuration.editable,
-        field_input_configuration.visible, field_input_configuration.tooltip, input_type.typeName, field.dataOriginId,
-        field_input_configuration.validatorsConfiguration as rules, field_input_configuration.usePossibleValuesFromDatabase as useDatabase,
-        field_input_configuration.id as fieldInputVisualConfigurationId
-        FROM field
-        JOIN field_input_configuration
-        ON field_input_configuration.fieldId = field.id
-        JOIN input_type
-        ON field_input_configuration.inputTypeId = input_type.id
-        WHERE field.entityId = ${this.entity.id};`,
-      },
+    const radProfile = radBusinessUnite.profiles.find(
+      (rbu) => rbu.identifier === 'radProfile',
     );
 
-    this.inputFields = [];
+    const fieldCrudConfig = [];
 
-    for (const inputField of inputFieldsResult.data.content[0]) {
-      if (inputField.visible && inputField.editable) {
-        inputField['currentValue'] = this.currentEntityData[inputField.name];
-        this.inputFields.push(inputField);
+    for (const role of radProfile.roles) {
+      for (const option of role.options) {
+        if (option.type === 'INTERNAL_RULE') {
+          const optionValueArray = option.value.split('::');
+          if (optionValueArray[0] === this.entity.name) {
+            fieldCrudConfig.push({
+              field: optionValueArray[1],
+              crudValue: optionValueArray[2],
+            });
+          }
+        }
       }
     }
 
-    console.log(this.inputFields);
+    const fields = await axios.post(
+      `${this.zeroCodeBaseApi}/api/field/query?access_token=${this.access_key}&pagination=false`,
+      {
+        filters: [
+          {
+            column: 'entityId',
+            value: this.entity.id,
+            operation: '=',
+            negate: false,
+          },
+        ],
+      },
+    );
+
+    const preFields = fields.data.content;
+
+    this.fields = [];
+
+    for (const preField of preFields) {
+      const indexOfField = fieldCrudConfig.findIndex(
+        (fc) => fc.field === preField.name,
+      );
+      if (
+        (indexOfField > -1 &&
+          fieldCrudConfig[indexOfField].crudValue.includes('U')) ||
+        indexOfField === -1
+      ) {
+        const fullFieldQuery = await axios.post(
+          `${this.zeroCodeBaseApi}/api/field_input_configuration/query?access_token=${this.access_key}&pagination=false`,
+          {
+            filters: [
+              {
+                column: 'fieldId',
+                value: preField.id,
+                operation: '=',
+                negate: false,
+              },
+            ],
+          },
+        );
+
+        const fieldViewConfiguration = fullFieldQuery.data.content[0];
+
+        this.fields.push({
+          ...preField,
+          fieldViewConfiguration,
+        });
+      }
+    }
+
+    this.inputFields = this.fields.filter(
+      (inputField) => inputField.fieldViewConfiguration.visible,
+    );
 
     for (const input of this.inputFields) {
-      if (!input.useDatabase && input.typeName === 'select') {
+      if (
+        !input.fieldViewConfiguration.usePossibleValuesFromDatabase &&
+        input.fieldViewConfiguration.type === 'select'
+      ) {
         const possibleValues = await axios.post(
-          `http://localhost:2111/api/possible_value/query?access_token=${this.access_key}&pagination=false`,
+          `${this.zeroCodeBaseApi}/api/possible_value/query?access_token=${this.access_key}&pagination=false`,
           {
             filters: [
               {
@@ -72,7 +125,7 @@ class EditEntityComponent {
         });
       } else if (input.useDatabase && input.typeName === 'select') {
         const dataBaseForeignRelationResult = await axios.post(
-          `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
+          `${this.zeroCodeBaseApi}/api/zero-code/raw-query?access_token=${this.access_key}`,
           {
             dbQuery: `SELECT 
             foreign_relation.foreignTableName, 
@@ -81,7 +134,7 @@ class EditEntityComponent {
             FROM data_base_origin
             JOIN foreign_relation
             ON data_base_origin.foreignRelationId = foreign_relation.id
-            WHERE data_base_origin.dataOriginId = ${input.dataOriginId};`,
+            WHERE data_base_origin.dataOriginId = ${input.dataBaseOriginId};`,
           },
         );
 
@@ -89,7 +142,7 @@ class EditEntityComponent {
           dataBaseForeignRelationResult.data.content[0][0];
 
         const possibleValuesFromDataBase = await axios.post(
-          `http://localhost:2111/api/${dataBaseForeignRelation.foreignTableName}/query?access_token=${this.access_key}&pagination=false`,
+          `${this.zeroCodeBaseApi}/api/${dataBaseForeignRelation.foreignTableName}/query?access_token=${this.access_key}&pagination=false`,
           {},
         );
 
@@ -109,6 +162,7 @@ class EditEntityComponent {
     return generateHTML(editEntityTemplate, {
       inputFields: this.inputFields,
       entity: this.entity,
+      parseDefaultString,
     });
   }
 
@@ -119,12 +173,13 @@ class EditEntityComponent {
 
     for (const inputName in inputs) {
       const input = inputs[inputName];
+      console.log(input.attr('disabled'));
       dataToSend[inputName] = input.val();
     }
 
     this.notifier.asyncBlock(
       axios.put(
-        `http://localhost:2111/api/${this.entity.name}/${this.identifier}?access_token=${this.access_key}&identifierColumn=${this.columnIdentifier}`,
+        `${this.zeroCodeBaseApi}/api/${this.entity.name}/${this.identifier}?access_token=${this.access_key}&identifierColumn=${this.columnIdentifier}`,
         {
           ...dataToSend,
         },
@@ -155,7 +210,8 @@ class EditEntityComponent {
     const rules = {};
 
     this.inputFields.map((inputField) => {
-      rules[inputField.name] = inputField.rules || {};
+      rules[inputField.name] =
+        inputField.fieldViewConfiguration.validatorsConfiguration || {};
       inputs[inputField.name] = $(`#inp-${inputField.name}`);
     });
 

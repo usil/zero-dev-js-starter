@@ -10,6 +10,8 @@ class EntitiesListComponent {
   }
 
   async onInit() {
+    this.zeroCodeBaseApi = window.variables.zeroCodeBaseApi;
+
     const applicationId = window.variables.applicationId;
     const access_key =
       window.variables.extraSettings.signedUserDetails.accessToken;
@@ -42,7 +44,7 @@ class EntitiesListComponent {
     }
 
     const entitiesResult = await axios.post(
-      `http://localhost:2111/api/entity/query?access_token=${access_key}`,
+      `${this.zeroCodeBaseApi}/api/entity/query?access_token=${access_key}`,
       {
         filters: [
           ...rolesWebOptions,

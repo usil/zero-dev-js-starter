@@ -1,4 +1,5 @@
 import createNewEntityTemplate from './create-new-entity.component.html';
+import parseDefaultString from '../../helpers/parseDefaultString';
 import { generateHTML } from '../../helpers/helpers';
 import axios from 'axios';
 import $ from 'jquery';
@@ -13,35 +14,99 @@ class CreateNewEntityComponent {
   }
 
   async onInit() {
+    this.zeroCodeBaseApi = window.variables.zeroCodeBaseApi;
+
     const signedUserDetails = window.variables.extraSettings.signedUserDetails;
 
     this.access_key = signedUserDetails.accessToken;
 
-    const inputFieldsResult = await axios.post(
-      `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
+    const businessUnits = signedUserDetails.businessUnits;
+
+    const radBusinessUnite = businessUnits.find(
+      (bu) => bu.identifier === 'radUnit',
+    );
+
+    const radProfile = radBusinessUnite.profiles.find(
+      (rbu) => rbu.identifier === 'radProfile',
+    );
+
+    const fieldCrudConfig = [];
+
+    for (const role of radProfile.roles) {
+      for (const option of role.options) {
+        if (option.type === 'INTERNAL_RULE') {
+          const optionValueArray = option.value.split('::');
+          if (optionValueArray[0] === this.entity.name) {
+            fieldCrudConfig.push({
+              field: optionValueArray[1],
+              crudValue: optionValueArray[2],
+            });
+          }
+        }
+      }
+    }
+
+    const fields = await axios.post(
+      `${this.zeroCodeBaseApi}/api/field/query?access_token=${this.access_key}&pagination=false`,
       {
-        dbQuery: `SELECT 
-        field.id, field.entityId, field.name, field_input_configuration.label, field_input_configuration.disabled, 
-        field_input_configuration.visible, field_input_configuration.tooltip, input_type.typeName, field.dataBaseOriginId,
-        field_input_configuration.validatorsConfiguration as rules, field_input_configuration.usePossibleValuesFromDatabase as useDatabase,
-        field_input_configuration.id as fieldInputVisualConfigurationId
-        FROM field
-        JOIN field_input_configuration
-        ON field_input_configuration.fieldId = field.id
-        JOIN zzzz
-        ON field_input_configuration.inputTypeId = input_type.id
-        WHERE field.entityId = ${this.entity.id};`,
+        filters: [
+          {
+            column: 'entityId',
+            value: this.entity.id,
+            operation: '=',
+            negate: false,
+          },
+        ],
       },
     );
 
-    this.inputFields = inputFieldsResult.data.content[0].filter(
-      (inputField) => inputField.visible,
+    const preFields = fields.data.content;
+
+    this.fields = [];
+
+    for (const preField of preFields) {
+      const indexOfField = fieldCrudConfig.findIndex(
+        (fc) => fc.field === preField.name,
+      );
+      if (
+        (indexOfField > -1 &&
+          fieldCrudConfig[indexOfField].crudValue.includes('C')) ||
+        indexOfField === -1
+      ) {
+        const fullFieldQuery = await axios.post(
+          `${this.zeroCodeBaseApi}/api/field_input_configuration/query?access_token=${this.access_key}&pagination=false`,
+          {
+            filters: [
+              {
+                column: 'fieldId',
+                value: preField.id,
+                operation: '=',
+                negate: false,
+              },
+            ],
+          },
+        );
+
+        const fieldViewConfiguration = fullFieldQuery.data.content[0];
+
+        this.fields.push({
+          ...preField,
+          fieldViewConfiguration,
+        });
+      }
+    }
+
+    this.inputFields = this.fields.filter(
+      (inputField) => inputField.fieldViewConfiguration.visible,
     );
 
     for (const input of this.inputFields) {
-      if (!input.useDatabase && input.typeName === 'select') {
+      if (
+        !input.fieldViewConfiguration.usePossibleValuesFromDatabase &&
+        input.fieldViewConfiguration.type === 'select'
+      ) {
         const possibleValues = await axios.post(
-          `http://localhost:2111/api/possible_value/query?access_token=${this.access_key}&pagination=false`,
+          `${this.zeroCodeBaseApi}/api/possible_value/query?access_token=${this.access_key}&pagination=false`,
           {
             filters: [
               {
@@ -58,7 +123,7 @@ class CreateNewEntityComponent {
         });
       } else if (input.useDatabase && input.typeName === 'select') {
         const dataBaseForeignRelationResult = await axios.post(
-          `http://localhost:2111/api/zero-code/raw-query?access_token=${this.access_key}`,
+          `${this.zeroCodeBaseApi}/api/zero-code/raw-query?access_token=${this.access_key}`,
           {
             dbQuery: `SELECT 
             foreign_relation.foreignTableName, 
@@ -67,7 +132,7 @@ class CreateNewEntityComponent {
             FROM data_base_origin
             JOIN foreign_relation
             ON data_base_origin.foreignRelationId = foreign_relation.id
-            WHERE data_base_origin.dataOriginId = ${input.dataOriginId};`,
+            WHERE data_base_origin.dataOriginId = ${input.dataBaseOriginId};`,
           },
         );
 
@@ -75,7 +140,7 @@ class CreateNewEntityComponent {
           dataBaseForeignRelationResult.data.content[0][0];
 
         const possibleValuesFromDataBase = await axios.post(
-          `http://localhost:2111/api/${dataBaseForeignRelation.foreignTableName}/query?access_token=${this.access_key}&pagination=false`,
+          `${this.zeroCodeBaseApi}/api/${dataBaseForeignRelation.foreignTableName}/query?access_token=${this.access_key}&pagination=false`,
           {},
         );
 
@@ -95,6 +160,7 @@ class CreateNewEntityComponent {
     return generateHTML(createNewEntityTemplate, {
       inputFields: this.inputFields,
       entity: this.entity,
+      parseDefaultString,
     });
   }
 
@@ -103,12 +169,14 @@ class CreateNewEntityComponent {
     const dataToSend = {};
     for (const inputName in inputs) {
       const input = inputs[inputName];
-      dataToSend[inputName] = input.val();
+      if (input.attr('disabled') === undefined) {
+        dataToSend[inputName] = input.val();
+      }
     }
 
     this.notifier.asyncBlock(
       axios.post(
-        `http://localhost:2111/api/${this.entity.name}?access_token=${this.access_key}`,
+        `${this.zeroCodeBaseApi}/api/${this.entity.name}?access_token=${this.access_key}`,
         {
           inserts: [
             {
@@ -142,7 +210,8 @@ class CreateNewEntityComponent {
     const rules = {};
 
     this.inputFields.map((inputField) => {
-      rules[inputField.name] = inputField.rules || {};
+      rules[inputField.name] =
+        inputField.fieldViewConfiguration.validatorsConfiguration || {};
       inputs[inputField.name] = $(`#inp-${inputField.name}`);
     });
 

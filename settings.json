@@ -1,9 +1,10 @@
 {
   "title": "foo",
   "applicationId": 1,
+  "zeroCodeBaseApi": "http://localhost:2111",
   "extraSettings": {
     "signedUserDetails": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiZzZjR0dFZXBEbzRTc2RqcE41dkU6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU2OTQ3NTM0LCJleHAiOjE2NTcwMzM5MzR9.bpJuoO5aJQSkN23HC-ussrhNawEOPG07WocpRTGdmq8",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiZzZjR0dFZXBEbzRTc2RqcE41dkU6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU3MTIyMDY2LCJleHAiOjE2NTcyMDg0NjZ9.9ECKDXoN1g3aXIu3emvejzY0ZsVOeX96IxGFAfyCJDo",
       "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiNjRhZGQxYi05YzBhLTQyMjAtYjVhNC0zOTBkMjU1M2FiOWUiLCJpYXQiOjE2NTA1MjI3MjIsInN1YiI6InJsZW9uaUB1c2lsLmVkdS5wZSIsImV4cCI6MTY1MDUyNjMyMn0.NdLxkxyBqYM3aOVwWLkMrZYWkG8dPXB1pBvYkrRO-us",
       "tokenType": "bearer",
       "expiresIn": "3600s",

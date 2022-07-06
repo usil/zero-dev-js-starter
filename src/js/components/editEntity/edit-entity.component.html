@@ -1,31 +1,45 @@
 <form id="form-inner" class="row gx-4 gy-4">
   {{@each(it.inputFields) => val, index}}
   <div class="col-6">
-    <label for="exampleInputEmail1" class="form-label">{{ val.label }}</label>
-
+    <label for="exampleInputEmail1" class="form-label">{{
+      val.fieldViewConfiguration.label
+    }}</label>
     <!-- Adds input text -->
-    {{@if(val.typeName === "text")}}
+    {{@if(val.fieldViewConfiguration.type === "text")}}
     <input
-      value="{{ val.currentValue }}"
-      name="{{ val.name }}"
-      type="text"
-      class="form-control"
-      id="inp-{{ val.name }}"
-    />
+    {{@if(val.fieldViewConfiguration.disabled)}}
+    disabled
+    {{/if}}
+    {{@if(val.fieldViewConfiguration.defaultValue)}}
+      value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
+    {{/if}}
+    name="{{ val.name }}" type="text" class="form-control" id="inp-{{
+      val.name
+    }}" />
     {{/if}}
     <!-- Adds text area -->
-    {{@if(val.typeName === "textarea")}}
+    {{@if(val.fieldViewConfiguration.type === "textarea")}}
     <textarea
+      {{@if(val.fieldViewConfiguration.defaultValue)}}
+        value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
+      {{/if}}
+      {{@if(val.fieldViewConfiguration.disabled)}}
+      disabled
+      {{/if}}
       name="{{ val.name }}"
       class="form-control"
       id="inp-{{ val.name }}"
-      >{{ val.currentValue }}</textarea
-    >
+    ></textarea>
     {{/if}}
     <!-- Adds select -->
-    {{@if(val.typeName === "select")}}
+    {{@if(val.fieldViewConfiguration.type === "select")}}
     <select
-      value="{{ val.currentValue }}"
+    {{@if(val.fieldViewConfiguration.defaultValue)}}
+      value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
+    {{/if}}
+    {{@if(val.fieldViewConfiguration.disabled)}}
+    disabled
+    {{/if}}
       name="{{ val.name }}"
       id="inp-{{ val.name }}"
       class="form-select"
@@ -38,7 +52,7 @@
     {{/if}}
 
     <div id="emailHelp" class="form-text">
-      {{ val.tooltip }}
+      {{ val.fieldViewConfiguration.tooltip }}
     </div>
   </div>
   {{/each}}

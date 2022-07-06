@@ -1,5 +1,6 @@
 import entityDataListTemplate from './entity-data-list.component.html';
 import { generateHTML, sendDefaultEvent } from '../../helpers/helpers';
+import parseDefaultString from '../../helpers/parseDefaultString';
 import axios from 'axios';
 import $ from 'jquery';
 import 'pdfmake';
@@ -22,6 +23,8 @@ class EntityDataListComponent {
   }
 
   async onInit() {
+    this.zeroCodeBaseApi = window.variables.zeroCodeBaseApi;
+
     const signedUserDetails = window.variables.extraSettings.signedUserDetails;
 
     const businessUnits = signedUserDetails.businessUnits;
@@ -53,7 +56,7 @@ class EntityDataListComponent {
     this.access_key = signedUserDetails.accessToken;
 
     const fields = await axios.post(
-      `http://localhost:2111/api/field/query?access_token=${this.access_key}&pagination=false`,
+      `${this.zeroCodeBaseApi}/api/field/query?access_token=${this.access_key}&pagination=false`,
       {
         filters: [
           {
@@ -80,7 +83,7 @@ class EntityDataListComponent {
         indexOfField === -1
       ) {
         const fullFieldQuery = await axios.post(
-          `http://localhost:2111/api/fields_list_configuration/query?access_token=${this.access_key}&pagination=false`,
+          `${this.zeroCodeBaseApi}/api/fields_list_configuration/query?access_token=${this.access_key}&pagination=false`,
           {
             filters: [
               {
@@ -96,7 +99,7 @@ class EntityDataListComponent {
         const fieldListConfiguration = fullFieldQuery.data.content[0];
 
         const fieldFilterConfiguration = await axios.post(
-          `http://localhost:2111/api/filter_configuration/query?access_token=${this.access_key}&pagination=false`,
+          `${this.zeroCodeBaseApi}/api/filter_configuration/query?access_token=${this.access_key}&pagination=false`,
           {
             filters: [
               {
@@ -119,12 +122,8 @@ class EntityDataListComponent {
       }
     }
 
-    console.log(this.fields);
-
-    // this.fields = fields.data.content.filter((f) => f.visibleOnList);
-
     const entityDataResult = await axios.get(
-      `http://localhost:2111/api/${this.entity.name}?access_token=${this.access_key}&orderByColumn=${this.fields[0].name}`,
+      `${this.zeroCodeBaseApi}/api/${this.entity.name}?access_token=${this.access_key}&orderByColumn=${this.fields[0].name}`,
     );
 
     this.entityData = entityDataResult.data.content;
@@ -148,7 +147,7 @@ class EntityDataListComponent {
   onOkDelete = (identifier, row) => {
     this.notifier.asyncBlock(
       axios.delete(
-        `http://localhost:2111/api/${this.entity.name}/${identifier}?access_token=${this.access_key}&identifierColumn=${this.fields[0].name}`,
+        `${this.zeroCodeBaseApi}/api/${this.entity.name}/${identifier}?access_token=${this.access_key}&identifierColumn=${this.fields[0].name}`,
       ),
       () => {
         this.notifier.success(`${this.entity.name} deleted`);
@@ -182,7 +181,7 @@ class EntityDataListComponent {
   }
 
   async afterRender() {
-    this.url = `http://localhost:2111/api/${this.entity.name}/query?access_token=${this.access_key}`;
+    this.url = `${this.zeroCodeBaseApi}/api/${this.entity.name}/query?access_token=${this.access_key}`;
 
     this.table = $('#entity-data-table').DataTable({
       dom: 'Blfrtip',
@@ -223,23 +222,24 @@ class EntityDataListComponent {
         const that = this;
 
         const eventHandler = (ev) => {
-          const parent = $(ev.target).parent();
-          const inputs = parent.children();
           if (ev.key === 'Enter' || ev.type === 'change') {
-            const searchObject = {
-              operation: inputs[1].value,
-              value: inputs[0].value,
-            };
+            $('.search-inputs').each((i, searchInput) => {
+              const parent = $(searchInput);
+              const inputs = parent.children();
+              const searchObject = {
+                operation: inputs[1].value,
+                value: inputs[0].value,
+              };
+              const columnIndex = parseInt(parent.attr('dtc'));
+              that
+                .api()
+                .columns(columnIndex)
+                .search(
+                  inputs[0].value === '' ? '' : JSON.stringify(searchObject),
+                );
+            });
 
-            const columnIndex = parseInt(parent.attr('dtc'));
-
-            that
-              .api()
-              .columns(columnIndex)
-              .search(
-                inputs[0].value === '' ? '' : JSON.stringify(searchObject),
-              )
-              .draw();
+            that.api().draw();
           }
         };
 
@@ -256,18 +256,37 @@ class EntityDataListComponent {
           const fieldToFind = this.fields.map((f) => f.name);
           let filters = [];
 
-          for (const column of d.columns) {
-            if (column.search.value !== '') {
-              const search = JSON.parse(column.search.value);
-              filters.push({
-                column: column.data,
-                value: search.value,
-                operation: search.operation,
-                negate: false,
-                operator: 'and',
-              });
+          if (this.currentDraw === 1) {
+            for (const field of this.fields) {
+              const filter = field.fieldListConfiguration.filter;
+              if (filter) {
+                filters.push({
+                  column: field.name,
+                  value: filter.defaultValue,
+                  operation:
+                    filter.operations === 'all'
+                      ? '='
+                      : filter.operations.split('::')[0],
+                  negate: false,
+                  operator: 'and',
+                });
+              }
+            }
+          } else {
+            for (const column of d.columns) {
+              if (column.search.value !== '') {
+                const search = JSON.parse(column.search.value);
+                filters.push({
+                  column: column.data,
+                  value: search.value,
+                  operation: search.operation,
+                  negate: false,
+                  operator: 'and',
+                });
+              }
             }
           }
+
           return {
             pagination: {
               pagination: true,
@@ -332,7 +351,9 @@ class EntityDataListComponent {
       const title = $(h).text();
       $(h).html(
         `<div class="search-inputs" dtc="${i}">` +
-          `<input value="${filterData ? filterData.defaultValue : ''}" ${
+          `<input value="${
+            filterData ? parseDefaultString(filterData.defaultValue || '') : ''
+          }" ${
             filterData && (!filterData.editable || filterData.disabled)
               ? 'disabled'
               : ''
