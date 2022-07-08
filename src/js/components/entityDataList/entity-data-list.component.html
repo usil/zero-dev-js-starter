@@ -9,8 +9,12 @@
       {{@each(it.fields) => val, index}}
       <th scope="col">{{ val.name }}</th>
       {{/each}}
+      {{@if(it.entityCrudString.includes('U'))}}
       <th scope="col">Edit</th>
+      {{/if}}
+      {{@if(it.entityCrudString.includes('D'))}}
       <th scope="col">Delete</th>
+      {{/if}}
     </tr>
   </thead>
 </table>

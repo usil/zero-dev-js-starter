@@ -20,6 +20,7 @@ class EntityDataListComponent {
     this.notifier = new AWN({ icons: { enabled: false } });
     this.currentDraw = 0;
     this.entity = variables.entity;
+    this.entityCrudString = variables.entityCrudString;
   }
 
   async onInit() {
@@ -133,6 +134,7 @@ class EntityDataListComponent {
     return generateHTML(entityDataListTemplate, {
       entityData: this.entityData,
       fields: this.fields,
+      entityCrudString: this.entityCrudString,
     });
   }
 
@@ -182,6 +184,26 @@ class EntityDataListComponent {
 
   async afterRender() {
     this.url = `${this.zeroCodeBaseApi}/api/${this.entity.name}/query?access_token=${this.access_key}`;
+
+    const actionColumns = [];
+
+    if (this.entityCrudString.includes('U')) {
+      actionColumns.push({
+        data: null,
+        className: 'dt-center editor-edit',
+        orderable: false,
+        defaultContent: `<span class="material-icons">edit</span>`,
+      });
+    }
+
+    if (this.entityCrudString.includes('D')) {
+      actionColumns.push({
+        data: null,
+        className: 'dt-center editor-delete',
+        orderable: false,
+        defaultContent: `<span class="material-icons">delete</span>`,
+      });
+    }
 
     this.table = $('#entity-data-table').DataTable({
       dom: 'Blfrtip',
@@ -312,18 +334,7 @@ class EntityDataListComponent {
             data: f.name,
           };
         }),
-        {
-          data: null,
-          className: 'dt-center editor-edit',
-          orderable: false,
-          defaultContent: `<span class="material-icons">edit</span>`,
-        },
-        {
-          data: null,
-          className: 'dt-center editor-delete',
-          orderable: false,
-          defaultContent: `<span class="material-icons">delete</span>`,
-        },
+        ...actionColumns,
       ],
     });
 

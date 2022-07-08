@@ -53,7 +53,7 @@ class EntitiesListComponent {
             value: applicationId,
             operation: '=',
             negate: false,
-            operator: 'and',
+            operator: 'or',
           },
         ],
       },

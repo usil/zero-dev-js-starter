@@ -1,10 +1,10 @@
 {
   "title": "foo",
-  "applicationId": 1,
+  "applicationId": 3,
   "zeroCodeBaseApi": "http://localhost:2111",
   "extraSettings": {
     "signedUserDetails": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiZzZjR0dFZXBEbzRTc2RqcE41dkU6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU3MTIyMDY2LCJleHAiOjE2NTcyMDg0NjZ9.9ECKDXoN1g3aXIu3emvejzY0ZsVOeX96IxGFAfyCJDo",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiZzZjR0dFZXBEbzRTc2RqcE41dkU6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU3MjEwMjE1LCJleHAiOjE2NTcyOTY2MTV9.Ssl4qnK1D9MCpyARdu3_miPSk9okEsaoKpOY4YjjoaQ",
       "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiNjRhZGQxYi05YzBhLTQyMjAtYjVhNC0zOTBkMjU1M2FiOWUiLCJpYXQiOjE2NTA1MjI3MjIsInN1YiI6InJsZW9uaUB1c2lsLmVkdS5wZSIsImV4cCI6MTY1MDUyNjMyMn0.NdLxkxyBqYM3aOVwWLkMrZYWkG8dPXB1pBvYkrRO-us",
       "tokenType": "bearer",
       "expiresIn": "3600s",
@@ -30,7 +30,16 @@
                       "description": "opt1",
                       "id": 1,
                       "type": "WEB_OPTION",
-                      "value": "Boleta",
+                      "value": "Service",
+                      "order": 0
+                    },
+                    {
+                      "identifier": "opt1",
+                      "name": "opt1",
+                      "description": "opt1",
+                      "id": 1,
+                      "type": "WEB_OPTION",
+                      "value": "service_month",
                       "order": 0
                     },
                     {
@@ -38,8 +47,8 @@
                       "name": "opt2",
                       "description": "opt2",
                       "id": 2,
-                      "type": "WEB_OPTION",
-                      "value": "Clientes",
+                      "type": "INTERNAL_RULE",
+                      "value": "Service::CRUD",
                       "order": 4
                     },
                     {
@@ -48,16 +57,7 @@
                       "description": "opt2",
                       "id": 2,
                       "type": "INTERNAL_RULE",
-                      "value": "Boleta::id::CRUD",
-                      "order": 4
-                    },
-                    {
-                      "identifier": "opt2",
-                      "name": "opt2",
-                      "description": "opt2",
-                      "id": 2,
-                      "type": "INTERNAL_RULE",
-                      "value": "Boleta::codigo::CRUD",
+                      "value": "service_month::CRUD",
                       "order": 4
                     }
                   ]

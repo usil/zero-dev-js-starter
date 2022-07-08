@@ -7,10 +7,12 @@
     <!-- Adds input text -->
     {{@if(val.fieldViewConfiguration.type === "text")}}
     <input
-    {{@if(val.fieldViewConfiguration.disabled)}}
+    {{@if(val.fieldViewConfiguration.disabled || !val.fieldViewConfiguration.editable)}}
     disabled
     {{/if}}
-    {{@if(val.fieldViewConfiguration.defaultValue)}}
+    {{@if(val.currentValue !== null || val.currentValue !== '' || val.currentValue !== undefined)}}
+      value="{{ val.currentValue }}"
+    {{ #elif (val.fieldViewConfiguration.defaultValue) }}
       value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
     {{/if}}
     name="{{ val.name }}" type="text" class="form-control" id="inp-{{
@@ -20,25 +22,26 @@
     <!-- Adds text area -->
     {{@if(val.fieldViewConfiguration.type === "textarea")}}
     <textarea
-      {{@if(val.fieldViewConfiguration.defaultValue)}}
-        value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
-      {{/if}}
-      {{@if(val.fieldViewConfiguration.disabled)}}
-      disabled
-      {{/if}}
+    {{@if(val.fieldViewConfiguration.disabled || !val.fieldViewConfiguration.editable)}}
+    disabled
+    {{/if}}
+    
       name="{{ val.name }}"
       class="form-control"
       id="inp-{{ val.name }}"
-    ></textarea>
+    >{{@if(val.currentValue !== null || val.currentValue !== '' || val.currentValue !== undefined)}}{{ val.currentValue }}{{ #elif (val.fieldViewConfiguration.defaultValue) }}{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}
+    {{/if}}</textarea>
     {{/if}}
     <!-- Adds select -->
     {{@if(val.fieldViewConfiguration.type === "select")}}
     <select
-    {{@if(val.fieldViewConfiguration.defaultValue)}}
-      value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
-    {{/if}}
-    {{@if(val.fieldViewConfiguration.disabled)}}
+    {{@if(val.fieldViewConfiguration.disabled || !val.fieldViewConfiguration.editable)}}
     disabled
+    {{/if}}
+    {{@if(val.currentValue !== null || val.currentValue !== '' || val.currentValue !== undefined)}}
+      value="{{ val.currentValue }}"
+    {{ #elif (val.fieldViewConfiguration.defaultValue) }}
+      value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
     {{/if}}
       name="{{ val.name }}"
       id="inp-{{ val.name }}"

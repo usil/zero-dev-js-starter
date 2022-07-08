@@ -38,7 +38,10 @@ class EditEntityComponent {
       for (const option of role.options) {
         if (option.type === 'INTERNAL_RULE') {
           const optionValueArray = option.value.split('::');
-          if (optionValueArray[0] === this.entity.name) {
+          if (
+            optionValueArray.length === 3 &&
+            optionValueArray[0] === this.entity.name
+          ) {
             fieldCrudConfig.push({
               field: optionValueArray[1],
               crudValue: optionValueArray[2],
@@ -98,9 +101,19 @@ class EditEntityComponent {
       }
     }
 
-    this.inputFields = this.fields.filter(
-      (inputField) => inputField.fieldViewConfiguration.visible,
+    const currentDataResult = await axios.get(
+      `${this.zeroCodeBaseApi}/api/${this.entity.name}/${this.identifier}?access_token=${this.access_key}&identifierColumn=${this.columnIdentifier}`,
     );
+
+    this.currentEntityData = currentDataResult.data.content;
+
+    this.inputFields = this.fields.filter(
+      (inputField) => inputField.fieldViewConfiguration.editable,
+    );
+
+    for (const inputFiled of this.inputFields) {
+      inputFiled['currentValue'] = this.currentEntityData[inputFiled.name];
+    }
 
     for (const input of this.inputFields) {
       if (
@@ -112,8 +125,8 @@ class EditEntityComponent {
           {
             filters: [
               {
-                column: 'fieldInputVisualConfigurationId',
-                value: input.fieldInputVisualConfigurationId,
+                column: 'fieldInputlConfigurationId',
+                value: input.fieldViewConfiguration.id,
                 operation: '=',
                 negate: false,
               },
@@ -123,7 +136,10 @@ class EditEntityComponent {
         input['possibleData'] = possibleValues.data.content.map((pd) => {
           return { value: pd.value, displayValue: pd.displayValue };
         });
-      } else if (input.useDatabase && input.typeName === 'select') {
+      } else if (
+        input.fieldViewConfiguration.usePossibleValuesFromDatabase &&
+        input.fieldViewConfiguration.type === 'select'
+      ) {
         const dataBaseForeignRelationResult = await axios.post(
           `${this.zeroCodeBaseApi}/api/zero-code/raw-query?access_token=${this.access_key}`,
           {
@@ -134,7 +150,7 @@ class EditEntityComponent {
             FROM data_base_origin
             JOIN foreign_relation
             ON data_base_origin.foreignRelationId = foreign_relation.id
-            WHERE data_base_origin.dataOriginId = ${input.dataBaseOriginId};`,
+            WHERE data_base_origin.id = ${input.dataBaseOriginId};`,
           },
         );
 
@@ -173,7 +189,6 @@ class EditEntityComponent {
 
     for (const inputName in inputs) {
       const input = inputs[inputName];
-      console.log(input.attr('disabled'));
       dataToSend[inputName] = input.val();
     }
 

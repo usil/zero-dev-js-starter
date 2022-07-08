@@ -2,13 +2,13 @@ import jp from 'jsonpath';
 import cryptoRandomString from 'crypto-random-string';
 
 const parseDefaultString = (defaultString = '') => {
-  const startOccurrence = defaultString.indexOf('@@');
+  const startOccurrence = defaultString.indexOf('{{');
 
   if (startOccurrence === -1) {
     return defaultString;
   }
 
-  const finishOccurrence = defaultString.indexOf('@@', startOccurrence + 2);
+  const finishOccurrence = defaultString.indexOf('}}', startOccurrence + 2);
 
   if (finishOccurrence === -1 || finishOccurrence - startOccurrence === 1) {
     return defaultString;
@@ -30,7 +30,7 @@ const parseDefaultString = (defaultString = '') => {
     }
   }
 
-  const newValue = defaultString.replace(`@@${exp}@@`, parsedString);
+  const newValue = defaultString.replace(`{{${exp}}}`, parsedString);
 
   return parseDefaultString(newValue);
 };

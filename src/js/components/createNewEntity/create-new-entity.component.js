@@ -36,7 +36,10 @@ class CreateNewEntityComponent {
       for (const option of role.options) {
         if (option.type === 'INTERNAL_RULE') {
           const optionValueArray = option.value.split('::');
-          if (optionValueArray[0] === this.entity.name) {
+          if (
+            optionValueArray.length === 3 &&
+            optionValueArray[0] === this.entity.name
+          ) {
             fieldCrudConfig.push({
               field: optionValueArray[1],
               crudValue: optionValueArray[2],
@@ -97,7 +100,7 @@ class CreateNewEntityComponent {
     }
 
     this.inputFields = this.fields.filter(
-      (inputField) => inputField.fieldViewConfiguration.visible,
+      (inputField) => inputField.fieldViewConfiguration.onCreate,
     );
 
     for (const input of this.inputFields) {
@@ -110,8 +113,8 @@ class CreateNewEntityComponent {
           {
             filters: [
               {
-                column: 'fieldInputVisualConfigurationId',
-                value: input.fieldInputVisualConfigurationId,
+                column: 'fieldInputlConfigurationId',
+                value: input.fieldViewConfiguration.id,
                 operation: '=',
                 negate: false,
               },
@@ -121,7 +124,10 @@ class CreateNewEntityComponent {
         input['possibleData'] = possibleValues.data.content.map((pd) => {
           return { value: pd.value, displayValue: pd.displayValue };
         });
-      } else if (input.useDatabase && input.typeName === 'select') {
+      } else if (
+        input.fieldViewConfiguration.usePossibleValuesFromDatabase &&
+        input.fieldViewConfiguration.type === 'select'
+      ) {
         const dataBaseForeignRelationResult = await axios.post(
           `${this.zeroCodeBaseApi}/api/zero-code/raw-query?access_token=${this.access_key}`,
           {
@@ -132,7 +138,7 @@ class CreateNewEntityComponent {
             FROM data_base_origin
             JOIN foreign_relation
             ON data_base_origin.foreignRelationId = foreign_relation.id
-            WHERE data_base_origin.dataOriginId = ${input.dataBaseOriginId};`,
+            WHERE data_base_origin.id = ${input.dataBaseOriginId};`,
           },
         );
 
@@ -154,6 +160,8 @@ class CreateNewEntityComponent {
         );
       }
     }
+
+    console.log(this.inputFields);
   }
 
   async onRender() {
@@ -169,9 +177,7 @@ class CreateNewEntityComponent {
     const dataToSend = {};
     for (const inputName in inputs) {
       const input = inputs[inputName];
-      if (input.attr('disabled') === undefined) {
-        dataToSend[inputName] = input.val();
-      }
+      dataToSend[inputName] = input.val();
     }
 
     this.notifier.asyncBlock(
