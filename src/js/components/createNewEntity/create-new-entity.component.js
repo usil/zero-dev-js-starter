@@ -5,7 +5,9 @@ import axios from 'axios';
 import $ from 'jquery';
 import AWN from 'awesome-notifications';
 import 'jquery-validation';
-
+import AirDatepicker from 'air-datepicker';
+import es from 'air-datepicker/locale/es';
+import 'air-datepicker/air-datepicker.css';
 class CreateNewEntityComponent {
   constructor(variables) {
     this.notifier = new AWN({ icons: { enabled: false } });
@@ -180,6 +182,8 @@ class CreateNewEntityComponent {
       dataToSend[inputName] = input.val();
     }
 
+    console.log(dataToSend);
+
     this.notifier.asyncBlock(
       axios.post(
         `${this.zeroCodeBaseApi}/api/${this.entity.name}?access_token=${this.access_key}`,
@@ -216,6 +220,27 @@ class CreateNewEntityComponent {
     const rules = {};
 
     this.inputFields.map((inputField) => {
+      if (inputField.fieldViewConfiguration.type === 'datepicker') {
+        console.log(inputField.fieldViewConfiguration.advancedConfiguration);
+        console.log(
+          JSON.parse(inputField.fieldViewConfiguration.advancedConfiguration),
+        );
+
+        const advancedSettings = {
+          ...(inputField.fieldViewConfiguration.advancedConfiguration
+            ? JSON.parse(
+                inputField.fieldViewConfiguration.advancedConfiguration || '{}',
+              ) || {}
+            : {}),
+        };
+
+        console.log(advancedSettings);
+
+        new AirDatepicker(`#inp-${inputField.name}`, {
+          locale: es,
+          ...(advancedSettings.datePickerConfig || {}),
+        });
+      }
       rules[inputField.name] =
         inputField.fieldViewConfiguration.validatorsConfiguration || {};
       inputs[inputField.name] = $(`#inp-${inputField.name}`);

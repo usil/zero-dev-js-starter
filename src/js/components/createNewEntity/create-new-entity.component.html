@@ -5,6 +5,18 @@
       val.fieldViewConfiguration.label
     }}</label>
 
+    {{@if(val.fieldViewConfiguration.type === "datepicker")}}
+    <input
+    name="{{ val.name }}" type="text" class="form-control" id="inp-{{
+      val.name
+    }}"     
+    {{@if(val.fieldViewConfiguration.disabled)}}
+    disabled
+    {{/if}} 
+    class="form-control" type="text" readonly placeholder="Choose date" value id="input-dp"
+    />
+    {{/if}}
+
     <!-- Adds input text -->
     {{@if(val.fieldViewConfiguration.type === "text")}}
     <input
