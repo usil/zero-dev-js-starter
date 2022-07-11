@@ -12,8 +12,11 @@ import componentOrchestration from './listeners/ComponentOrchestration';
 document.addEventListener('DOMContentLoaded', async () => {
   await setVariableEnvironmentVariables();
   componentOrchestration.init();
+  // const event = new CustomEvent('default', {
+  //   detail: { componentName: 'entry', renderOnId: 'root' },
+  // });
   const event = new CustomEvent('default', {
-    detail: { componentName: 'entry', renderOnId: 'root' },
+    detail: { componentName: 'login', renderOnId: 'root' },
   });
   document.dispatchEvent(event);
 });

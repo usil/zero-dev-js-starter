@@ -6,6 +6,7 @@ import EntityComponent from '../components/entity/entity.component';
 import EntityDataListComponent from '../components/entityDataList/entity-data-list.component';
 import CreateNewEntityComponent from '../components/createNewEntity/create-new-entity.component';
 import EditEntityComponent from '../components/editEntity/edit-entity.component';
+import LoginComponent from '../components/login/login.component';
 
 const components = {
   entry: EntryComponent,
@@ -15,6 +16,7 @@ const components = {
   entityDataList: EntityDataListComponent,
   createNewEntity: CreateNewEntityComponent,
   editEntity: EditEntityComponent,
+  login: LoginComponent,
 };
 
 class ComponentOrchestration {
