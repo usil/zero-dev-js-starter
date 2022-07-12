@@ -1,5 +1,5 @@
 import entryTemplate from './login.component.html';
-import { generateHTML, sendDefaultEvent } from '../../helpers/helpers';
+import { generateHTML } from '../../helpers/helpers';
 import $ from 'jquery';
 
 class LoginComponent {

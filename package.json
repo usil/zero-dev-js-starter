@@ -79,6 +79,7 @@
     "pdfmake": "^0.2.5",
     "randomstring": "^1.2.2",
     "simplebar": "5.3.6",
+    "spa-custom-security-plugin": "git+https://github.com/usil/spa-custom-security-plugin.git#snapshot1",
     "squirrelly": "^8.0.8"
   },
   "devDependencies": {
@@ -101,10 +102,12 @@
     "filemanager-webpack-plugin": "6.1.7",
     "hard-source-webpack-plugin": "0.13.1",
     "html-loader": "^3.1.0",
+    "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "2.5.3",
-    "nodeboot-spa-server": "git+https://github.com/usil/nodeboot-spa-server.git",
+    "nodeboot-spa-server": "git+https://github.com/usil/nodeboot-spa-server.git#add-plugin-support",
     "postcss-loader": "6.2.1",
     "prettier": "^2.6.2",
+    "raw-loader": "^4.0.2",
     "sass": "1.49.7",
     "sass-loader": "12.4.0",
     "terser-webpack-plugin": "5.3.1",

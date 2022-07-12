@@ -15,8 +15,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   // const event = new CustomEvent('default', {
   //   detail: { componentName: 'entry', renderOnId: 'root' },
   // });
-  const event = new CustomEvent('default', {
-    detail: { componentName: 'login', renderOnId: 'root' },
-  });
+  console.log(window.variables.extraSettings);
+
+  let event;
+
+  if (
+    window.variables.extraSettings &&
+    window.variables.extraSettings.signedUserDetails
+  ) {
+    event = new CustomEvent('default', {
+      detail: { componentName: 'entry', renderOnId: 'root' },
+    });
+  } else {
+    event = new CustomEvent('default', {
+      detail: { componentName: 'login', renderOnId: 'root' },
+    });
+  }
+
   document.dispatchEvent(event);
 });

@@ -93,7 +93,7 @@ module.exports = {
       // html loader
       {
         test: /\.html$/i,
-        loader: 'html-loader',
+        loader: 'raw-loader',
       },
       // Load fonts
       {
@@ -127,8 +127,18 @@ module.exports = {
       }
 
       devServer.app.get('/settings.json', function (_req, res) {
-        const settings = envSettings.loadJsonFileSync('./settings.json');
+        const settings = envSettings.loadJsonFileSync('./settings-dev.json');
         res.json(settings);
+      });
+
+      devServer.app.post('/oauth2/token/refresh', function (_req, res) {
+        return res.json({
+          message: 'New token generated',
+          code: 200001,
+          content: {
+            accessToken: 'somenewtoken',
+          },
+        });
       });
     },
     static: {

@@ -8,18 +8,26 @@ class TitleComponent {
   }
 
   async onInit() {
-    this.zeroCodeBaseApi = window.variables.zeroCodeBaseApi;
+    try {
+      this.zeroCodeBaseApi = window.variables.zeroCodeBaseApi;
 
-    const applicationId = window.variables.applicationId;
+      const applicationId = window.variables.applicationId;
 
-    const access_key =
-      window.variables.extraSettings.signedUserDetails.accessToken;
+      const access_key =
+        window.variables.extraSettings.signedUserDetails.accessToken;
 
-    const applicationResult = await axios.get(
-      `${this.zeroCodeBaseApi}/api/application/${applicationId}?access_token=${access_key}`,
-    );
+      const applicationResult = await axios.get(
+        `${this.zeroCodeBaseApi}/api/application/${applicationId}?access_token=${access_key}`,
+      );
 
-    this.appName = applicationResult.data.content.name;
+      this.appName = applicationResult.data.content.name;
+    } catch (error) {
+      if (error.response && error.response.message === 'jwt expired') {
+        axios.post('/oauth2/token/refresh').then((res) => {
+          console.log(res);
+        });
+      }
+    }
   }
 
   async onRender() {
