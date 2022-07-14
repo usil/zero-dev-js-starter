@@ -24,7 +24,7 @@ class TitleComponent {
     } catch (error) {
       if (error.response && error.response.message === 'jwt expired') {
         axios.post('/oauth2/token/refresh').then((res) => {
-          console.log(res);
+          console.log(res.data);
         });
       }
     }

@@ -12,9 +12,6 @@ import componentOrchestration from './listeners/ComponentOrchestration';
 document.addEventListener('DOMContentLoaded', async () => {
   await setVariableEnvironmentVariables();
   componentOrchestration.init();
-  // const event = new CustomEvent('default', {
-  //   detail: { componentName: 'entry', renderOnId: 'root' },
-  // });
   console.log(window.variables.extraSettings);
 
   let event;
