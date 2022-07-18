@@ -1,0 +1,20 @@
+<table id="entity-data-table" class="table table-striped" style="width: 100%">
+  <thead>
+    <tr>
+      {{@each(it.fields) => val, index}}
+      <th scope="col">{{ val.name }}</th>
+      {{/each}}
+    </tr>
+    <tr>
+      {{@each(it.fields) => val, index}}
+      <th scope="col">{{ val.name }}</th>
+      {{/each}}
+      {{@if(it.entityCrudString.includes('U'))}}
+      <th scope="col">Edit</th>
+      {{/if}}
+      {{@if(it.entityCrudString.includes('D'))}}
+      <th scope="col">Delete</th>
+      {{/if}}
+    </tr>
+  </thead>
+</table>

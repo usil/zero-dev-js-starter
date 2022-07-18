@@ -1,0 +1,6 @@
+{
+  "title": "foo",
+  "applicationId": 3,
+  "timeZone": "America/Lima",
+  "zeroCodeBaseApi": "${ZERO_CODE_API}"
+}

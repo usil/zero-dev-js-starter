@@ -1,0 +1,50 @@
+.login-container {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url('http://localhost:2900/img/photos/login.jpg');
+  background-size: cover;
+
+  .login-card {
+    border-radius: 10px;
+    display: grid;
+    gap: 1rem;
+    padding: 2rem;
+    background: white;
+    width: 500px;
+    h3 {
+      font-weight: 700;
+      margin: 0;
+    }
+    .login-btn {
+      border-radius: 5px;
+      gap: 0.5rem;
+      &:hover {
+        cursor: pointer;
+        box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+          rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
+          rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+      }
+
+      box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+        rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1px 4.9fr;
+      align-items: center;
+      .separation {
+        height: 100%;
+        background-color: rgb(56, 56, 56);
+      }
+      p {
+        margin: 0;
+
+        font-size: 1rem;
+      }
+    }
+  }
+}

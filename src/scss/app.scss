@@ -1,0 +1,433 @@
+/*!
+ * AdminKit v3.2.0 (https://adminkit.io/)
+ * Copyright 2022 Paul Laros
+ * Copyright 2022 AdminKit
+ * Licensed under MIT (https://github.com/adminkit/adminkit/blob/master/LICENSE)
+ */
+
+// Variables
+@import '1-variables/app';
+
+// Bootstrap
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+@import '~bootstrap/scss/utilities';
+@import '~bootstrap/scss/root';
+@import '~bootstrap/scss/reboot';
+@import '~bootstrap/scss/type';
+@import '~bootstrap/scss/images';
+@import '~bootstrap/scss/containers';
+@import '~bootstrap/scss/grid';
+@import '~bootstrap/scss/tables';
+@import '~bootstrap/scss/forms';
+@import '~bootstrap/scss/buttons';
+@import '~bootstrap/scss/transitions';
+@import '~bootstrap/scss/dropdown';
+@import '~bootstrap/scss/button-group';
+@import '~bootstrap/scss/nav';
+@import '~bootstrap/scss/navbar';
+@import '~bootstrap/scss/card';
+@import '~bootstrap/scss/badge';
+@import '~bootstrap/scss/list-group';
+@import '~bootstrap/scss/close';
+@import '~bootstrap/scss/helpers';
+@import '~bootstrap/scss/utilities/api';
+
+@import '~datatables.net-bs5/css/dataTables.bootstrap5';
+@import '~datatables.net-buttons-bs5/css/buttons.bootstrap5';
+
+@import 'pagination';
+@import '~bootstrap/scss/alert';
+
+// Theme mixins
+@import '2-mixins/button';
+
+// Theme components
+@import '3-components/avatar';
+@import '3-components/buttons';
+@import '3-components/card';
+@import '3-components/chart';
+@import '3-components/content';
+@import '3-components/dropdown';
+@import '3-components/feather';
+@import '3-components/footer';
+@import '3-components/hamburger';
+@import '3-components/list-group';
+@import '3-components/main';
+@import '3-components/navbar';
+@import '3-components/reboot';
+@import '3-components/sidebar';
+@import '3-components/sizing';
+@import '3-components/stat';
+@import '3-components/tables';
+@import '3-components/type';
+@import '3-components/wrapper';
+@import '3-components/login';
+
+// Theme utilities
+@import '4-utilities/cursors';
+
+// 3rd party plugins
+@import '~jsvectormap/dist/css/jsvectormap';
+@import '~simplebar/dist/simplebar';
+@import '~flatpickr/dist/flatpickr';
+
+// 3rd party plugin styles
+@import '5-vendor/flatpickr';
+@import '5-vendor/simplebar';
+
+@import '~awesome-notifications/src/styles/animations';
+@import '~awesome-notifications/dist/style';
+
+@import '~material-icons/css/material-icons';
+
+// @import '~js-datepicker/src/datepicker';
+
+$width: 15.625em;
+$radius: $width * 0.016891;
+$transition: 0.3s;
+$font-size: $width * 0.056;
+$lightblue: lightblue;
+
+/*
+  All a user has to do to change the calendar size is
+  change the font-size on the container and everything
+  magically resizes accordingly. Relative units ftw!
+*/
+.qs-datepicker-container {
+  font-size: 1rem;
+  font-family: sans-serif;
+  color: black;
+  position: absolute;
+  width: $width;
+  display: flex;
+  flex-direction: column;
+  z-index: 9001;
+  user-select: none;
+  border: 1px solid gray;
+  border-radius: $radius;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 ($width * 0.08) ($width * 0.08) ($width * -0.06)
+    rgba(0, 0, 0, 0.3);
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+.qs-centered {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.qs-hidden {
+  display: none;
+}
+
+.qs-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  width: 100%;
+  height: 100%;
+  padding: 0.5em;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity $transition;
+  display: flex;
+  flex-direction: column;
+
+  &.qs-hidden {
+    opacity: 0;
+    z-index: -1;
+  }
+
+  .qs-overlay-year {
+    // Overlay year input element.
+    border: none;
+    background: transparent;
+    border-bottom: 1px solid white;
+    border-radius: 0;
+    color: white;
+    font-size: $font-size;
+    padding: 0.25em 0;
+    width: 80%;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+
+    // https://goo.gl/oUuGkG
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+  }
+
+  .qs-close {
+    padding: 0.5em;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .qs-submit {
+    border: 1px solid white;
+    border-radius: $radius;
+    padding: 0.5em;
+    margin: 0 auto auto;
+    cursor: pointer;
+    background: rgba(128, 128, 128, 0.4);
+
+    &.qs-disabled {
+      color: gray;
+      border-color: gray;
+      cursor: not-allowed;
+    }
+  }
+
+  .qs-overlay-month-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 1;
+  }
+
+  .qs-overlay-month {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: calc(100% / 3);
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity $transition / 2;
+
+    &.active,
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.qs-controls {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-grow: 1;
+  flex-shrink: 0;
+  background: lightgray;
+  filter: blur(0px);
+  transition: filter $transition;
+
+  &.qs-blur {
+    filter: blur(5px);
+  }
+}
+
+.qs-arrow {
+  height: $width / 10;
+  width: $width / 10;
+  position: relative;
+  cursor: pointer;
+  border-radius: $radius;
+  transition: background 0.15s;
+
+  &:hover {
+    &.qs-left:after {
+      border-right-color: black;
+    }
+
+    &.qs-right:after {
+      border-left-color: black;
+    }
+
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  &:after {
+    content: '';
+    border: ($width / 40) solid transparent;
+    position: absolute;
+    top: 50%;
+    transition: border 0.2s;
+  }
+
+  &.qs-left:after {
+    border-right-color: gray;
+    right: 50%;
+    transform: translate(25%, -50%);
+  }
+
+  &.qs-right:after {
+    border-left-color: gray;
+    left: 50%;
+    transform: translate(-25%, -50%);
+  }
+}
+
+.qs-month-year {
+  font-weight: bold;
+  transition: border 0.2s;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+
+  &:hover {
+    border-bottom: 1px solid gray;
+  }
+
+  &:focus,
+  &:active:focus {
+    outline: none;
+  }
+}
+
+.qs-month {
+  padding-right: 0.5ex;
+}
+
+.qs-year {
+  padding-left: 0.5ex;
+}
+
+.qs-squares {
+  display: flex;
+  flex-wrap: wrap;
+  padding: $width * 0.02;
+  filter: blur(0px);
+  transition: filter $transition;
+
+  &.qs-blur {
+    filter: blur(5px);
+  }
+}
+
+.qs-square {
+  width: calc(100% / 7);
+  height: $width / 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.1s;
+
+  // Overriden for date-range dates below.
+  border-radius: $radius;
+
+  &:not(.qs-empty):not(.qs-disabled):not(.qs-day):not(.qs-active) {
+    &:hover {
+      background: orange;
+    }
+  }
+}
+
+// Today's date
+.qs-current {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/*
+  3 possibilities:
+    1. Single, active date.
+    2. Daterange start selection.
+    3. Daterange end selection.
+*/
+.qs-active,
+.qs-range-start,
+.qs-range-end {
+  background: $lightblue;
+}
+
+// Daterange start selection.
+.qs-range-start {
+  &:not(.qs-range-6) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+// Daterange middle selections.
+.qs-range-middle {
+  background: lighten($lightblue, 10%);
+
+  &:not(.qs-range-0):not(.qs-range-6) {
+    border-radius: 0;
+  }
+
+  &.qs-range-0 {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  &.qs-range-6 {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+// Daterange end selection.
+.qs-range-end {
+  &:not(.qs-range-0) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.qs-disabled,
+.qs-outside-current-month {
+  opacity: 0.2;
+}
+
+.qs-disabled {
+  cursor: not-allowed;
+}
+
+.qs-empty {
+  cursor: default;
+}
+
+.qs-day {
+  cursor: default;
+  font-weight: bold;
+  color: gray;
+}
+
+.qs-event {
+  position: relative;
+
+  &:after {
+    content: '';
+    position: absolute;
+    width: $width * 0.03;
+    height: $width * 0.03;
+    border-radius: 50%;
+    background: #07f;
+    bottom: 0;
+    right: 0;
+  }
+}
+
+.editor-delete,
+.editor-edit {
+  span:hover {
+    color: #326abc;
+    cursor: pointer;
+  }
+}
+
+.dataTables_length {
+  margin-top: 10px;
+}
+
+.search-inputs input {
+  margin-bottom: 5px;
+}
+
+tfoot {
+  display: table-caption;
+}

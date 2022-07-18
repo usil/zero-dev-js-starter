@@ -1,0 +1,17 @@
+# dependencies
+/node_modules
+/yarn.lock
+.env
+
+# production
+/dist
+/_builder
+
+# misc
+.DS_Store
+.vscode/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

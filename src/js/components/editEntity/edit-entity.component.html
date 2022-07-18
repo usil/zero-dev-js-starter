@@ -1,0 +1,76 @@
+<form id="form-inner" class="row gx-4 gy-4">
+  {{@each(it.inputFields) => val, index}}
+  <div class="col-6">
+    <label for="exampleInputEmail1" class="form-label">{{
+      val.fieldViewConfiguration.label
+    }}</label>
+    {{@if(val.fieldViewConfiguration.type === "datepicker")}}
+    <input
+    name="{{ val.name }}" type="text" class="form-control" id="inp-{{
+      val.name
+    }}"     
+    {{@if(val.fieldViewConfiguration.disabled)}}
+    disabled
+    {{/if}} 
+    class="form-control" type="text" readonly placeholder="Choose date" value id="input-dp"
+    />
+    {{/if}}
+    <!-- Adds input text -->
+    {{@if(val.fieldViewConfiguration.type === "text")}}
+    <input
+    {{@if(val.fieldViewConfiguration.disabled || !val.fieldViewConfiguration.editable)}}
+    disabled
+    {{/if}}
+    {{@if(val.currentValue !== null || val.currentValue !== '' || val.currentValue !== undefined)}}
+      value="{{ val.currentValue }}"
+    {{ #elif (val.fieldViewConfiguration.defaultValue) }}
+      value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
+    {{/if}}
+    name="{{ val.name }}" type="text" class="form-control" id="inp-{{
+      val.name
+    }}" />
+    {{/if}}
+    <!-- Adds text area -->
+    {{@if(val.fieldViewConfiguration.type === "textarea")}}
+    <textarea
+    {{@if(val.fieldViewConfiguration.disabled || !val.fieldViewConfiguration.editable)}}
+    disabled
+    {{/if}}
+    
+      name="{{ val.name }}"
+      class="form-control"
+      id="inp-{{ val.name }}"
+    >{{@if(val.currentValue !== null || val.currentValue !== '' || val.currentValue !== undefined)}}{{ val.currentValue }}{{ #elif (val.fieldViewConfiguration.defaultValue) }}{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}
+    {{/if}}</textarea>
+    {{/if}}
+    <!-- Adds select -->
+    {{@if(val.fieldViewConfiguration.type === "select")}}
+    <select
+    {{@if(val.fieldViewConfiguration.disabled || !val.fieldViewConfiguration.editable)}}
+    disabled
+    {{/if}}
+    {{@if(val.currentValue !== null || val.currentValue !== '' || val.currentValue !== undefined)}}
+      value="{{ val.currentValue }}"
+    {{ #elif (val.fieldViewConfiguration.defaultValue) }}
+      value="{{ it.parseDefaultString(val.fieldViewConfiguration.defaultValue) }}"
+    {{/if}}
+      name="{{ val.name }}"
+      id="inp-{{ val.name }}"
+      class="form-select"
+      aria-label="Default select example"
+    >
+      {{@each(val.possibleData) => data, index}}
+      <option value="{{ data.value }}">{{ data.displayValue }}</option>
+      {{/each}}
+    </select>
+    {{/if}}
+
+    <div id="emailHelp" class="form-text">
+      {{ val.fieldViewConfiguration.tooltip }}
+    </div>
+  </div>
+  {{/each}}
+  <button id="s-btn" type="submit" class="btn btn-primary col-12 mx-2">
+    Update
+  </button>
+</form>

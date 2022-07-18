@@ -1,0 +1,15 @@
+{
+  "plugins": [{ "module": "spa-custom-security-plugin" }],
+  "cookieMaxAge": 60000,
+  "sessionSecret": "${SESSION_SECRET}",
+  "publicPages": [],
+  "applicationIdentifier": "web1",
+  "oauth2ClientId": "${OAUTH2_CLIENT_ID}",
+  "oauth2BaseUrl": "${SECURITY_OAUTH2_BASE_URL}",
+  "oauth2RefreshTokenEndpoint": "${SECURITY_OAUTH2_REFRESH_TOKEN_URL}",
+  "oauth2TokenUserEndpoint": "${SECURITY_OAUTH2_TOKEN_USER_URL}",
+  "oauth2AuthorizeUrlEndpoint": "${SECURITY_OAUTH2_AUTHORIZE_URL}",
+  "oauth2MaxAllowedIdleTime": "${SECURITY_OAUTH2_MAX_SECONDS_ALLOWED_FOR_IDLE_USER}",
+  "loginPage": "/",
+  "successPage": "/"
+}
