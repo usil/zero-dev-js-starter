@@ -8,6 +8,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const opts = {
   rootDir: process.cwd(),
@@ -42,6 +43,9 @@ module.exports = {
   },
   plugins: [
     // Extract css files to seperate bundle
+    new CopyPlugin({
+      patterns: [{ from: 'static/index.html' }],
+    }),
     new MiniCssExtractPlugin({
       filename: 'css/app.css',
       chunkFilename: 'css/app.css',
@@ -127,7 +131,6 @@ module.exports = {
       }
 
       devServer.app.get('/oauth2/ping', function (_req, res) {
-        console.log('ping');
         res.json({ message: 'done' });
       });
 

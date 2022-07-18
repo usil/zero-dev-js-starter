@@ -5,6 +5,10 @@ import axios from 'axios';
 import $ from 'jquery';
 import AWN from 'awesome-notifications';
 import 'jquery-validation';
+import AirDatepicker from 'air-datepicker';
+import es from 'air-datepicker/locale/es';
+import 'air-datepicker/air-datepicker.css';
+import moment from 'moment-timezone';
 
 class EditEntityComponent {
   constructor(variables) {
@@ -225,6 +229,27 @@ class EditEntityComponent {
     const rules = {};
 
     this.inputFields.map((inputField) => {
+      if (inputField.fieldViewConfiguration.type === 'datepicker') {
+        const advancedSettings = {
+          ...(inputField.fieldViewConfiguration.advancedConfiguration
+            ? JSON.parse(
+                inputField.fieldViewConfiguration.advancedConfiguration || '{}',
+              ) || {}
+            : {}),
+        };
+
+        new AirDatepicker(`#inp-${inputField.name}`, {
+          locale: es,
+          ...(advancedSettings.datePickerConfig || {}),
+          selectedDates: [inputField.currentValue],
+          dateFormat: (date) => {
+            const mDate = moment(date);
+            mDate.tz(window.variables.timeZone);
+            return mDate.format('Y-M-D');
+          },
+        });
+      }
+
       rules[inputField.name] =
         inputField.fieldViewConfiguration.validatorsConfiguration || {};
       inputs[inputField.name] = $(`#inp-${inputField.name}`);

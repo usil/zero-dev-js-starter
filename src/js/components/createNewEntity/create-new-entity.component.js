@@ -8,6 +8,7 @@ import 'jquery-validation';
 import AirDatepicker from 'air-datepicker';
 import es from 'air-datepicker/locale/es';
 import 'air-datepicker/air-datepicker.css';
+import moment from 'moment-timezone';
 class CreateNewEntityComponent {
   constructor(variables) {
     this.notifier = new AWN({ icons: { enabled: false } });
@@ -182,8 +183,6 @@ class CreateNewEntityComponent {
       dataToSend[inputName] = input.val();
     }
 
-    console.log(dataToSend);
-
     this.notifier.asyncBlock(
       axios.post(
         `${this.zeroCodeBaseApi}/api/${this.entity.name}?access_token=${this.access_key}`,
@@ -221,11 +220,6 @@ class CreateNewEntityComponent {
 
     this.inputFields.map((inputField) => {
       if (inputField.fieldViewConfiguration.type === 'datepicker') {
-        console.log(inputField.fieldViewConfiguration.advancedConfiguration);
-        console.log(
-          JSON.parse(inputField.fieldViewConfiguration.advancedConfiguration),
-        );
-
         const advancedSettings = {
           ...(inputField.fieldViewConfiguration.advancedConfiguration
             ? JSON.parse(
@@ -234,11 +228,14 @@ class CreateNewEntityComponent {
             : {}),
         };
 
-        console.log(advancedSettings);
-
         new AirDatepicker(`#inp-${inputField.name}`, {
           locale: es,
           ...(advancedSettings.datePickerConfig || {}),
+          dateFormat: (date) => {
+            const mDate = moment(date);
+            mDate.tz(window.variables.timeZone);
+            return mDate.format('Y-M-D');
+          },
         });
       }
       rules[inputField.name] =

@@ -1,10 +1,11 @@
 {
   "title": "foo",
   "applicationId": 3,
-  "zeroCodeBaseApi": "http://localhost:2111",
+  "timeZone": "America/Lima",
+  "zeroCodeBaseApi": "${ZERO_CODE_API}",
   "extraSettings": {
     "signedUserDetails": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiZzZjR0dFZXBEbzRTc2RqcE41dkU6OnVzaWwuemMuYXBwIiwic3ViamVjdFR5cGUiOiJjbGllbnQiLCJpZGVudGlmaWVyIjoiYWRtaW4ifSwiaWF0IjoxNjU3MzAwODk2LCJleHAiOjE2NTczODcyOTZ9.EGdohhhbedgwQQmVkCYN6y79EpRyM_AftREEcKZScQs",
+      "accessToken": "test",
       "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiNjRhZGQxYi05YzBhLTQyMjAtYjVhNC0zOTBkMjU1M2FiOWUiLCJpYXQiOjE2NTA1MjI3MjIsInN1YiI6InJsZW9uaUB1c2lsLmVkdS5wZSIsImV4cCI6MTY1MDUyNjMyMn0.NdLxkxyBqYM3aOVwWLkMrZYWkG8dPXB1pBvYkrRO-us",
       "tokenType": "bearer",
       "expiresIn": "3600s",
@@ -30,7 +31,7 @@
                       "description": "opt1",
                       "id": 1,
                       "type": "WEB_OPTION",
-                      "value": "Service",
+                      "value": "proyecto",
                       "order": 0
                     },
                     {
@@ -39,7 +40,16 @@
                       "description": "opt1",
                       "id": 1,
                       "type": "WEB_OPTION",
-                      "value": "service_month",
+                      "value": "servicio",
+                      "order": 0
+                    },
+                    {
+                      "identifier": "opt1",
+                      "name": "opt1",
+                      "description": "opt1",
+                      "id": 1,
+                      "type": "WEB_OPTION",
+                      "value": "plan_mensual",
                       "order": 0
                     },
                     {
@@ -48,7 +58,7 @@
                       "description": "opt2",
                       "id": 2,
                       "type": "INTERNAL_RULE",
-                      "value": "Service::CRUD",
+                      "value": "proyecto::CRUD",
                       "order": 4
                     },
                     {
@@ -57,7 +67,16 @@
                       "description": "opt2",
                       "id": 2,
                       "type": "INTERNAL_RULE",
-                      "value": "service_month::CRUD",
+                      "value": "servicio::CRUD",
+                      "order": 4
+                    },
+                    {
+                      "identifier": "opt2",
+                      "name": "opt2",
+                      "description": "opt2",
+                      "id": 2,
+                      "type": "INTERNAL_RULE",
+                      "value": "plan_mensual::CRUD",
                       "order": 4
                     }
                   ]
