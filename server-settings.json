@@ -10,5 +10,6 @@
   "oauth2TokenUserEndpoint": "${SECURITY_OAUTH2_TOKEN_USER_URL}",
   "oauth2AuthorizeUrlEndpoint": "${SECURITY_OAUTH2_AUTHORIZE_URL}",
   "oauth2MaxAllowedIdleTime": "${SECURITY_OAUTH2_MAX_SECONDS_ALLOWED_FOR_IDLE_USER}",
-  "loginPage": "/"
+  "loginPage": "/",
+  "successPage": "/"
 }

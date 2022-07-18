@@ -13,8 +13,7 @@ class LoginComponent {
 
   async afterRender() {
     $('#login-btn').on('click', () => {
-      console.log(window.location.hostname + '/oauth2/login');
-      window.location.href = window.location.hostname + '/oauth2/login';
+      window.location.href = window.location + 'oauth2/login';
     });
   }
 }
