@@ -329,7 +329,6 @@ class EntityDataListComponent {
       },
       columns: [
         ...this.fields.map((f) => {
-          console.log(f);
           return {
             data: f.name,
           };

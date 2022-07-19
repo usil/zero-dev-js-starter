@@ -205,9 +205,7 @@ class EditEntityComponent {
       ),
       () => {
         this.notifier.success(`${this.entity.name} updated!!`);
-        sendDefaultEvent('entityDataList', 'entity-content', {
-          entity: this.entity,
-        });
+        sendDefaultEvent('entity', 'main-container', { id: this.entity.id });
       },
       (error) => {
         $('form')[0].reset();

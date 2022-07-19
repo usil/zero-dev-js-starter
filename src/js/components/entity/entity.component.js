@@ -59,14 +59,20 @@ class EntityComponent {
     });
   }
 
+  renderViewList() {
+    sendDefaultEvent('entityDataList', 'entity-content', {
+      entity: this.entity,
+      entityCrudString: this.entityCrudString,
+    });
+  }
+
   async afterRender() {
     if (this.entityCrudString.includes('R')) {
       $('#view-list').on('click', () => {
-        sendDefaultEvent('entityDataList', 'entity-content', {
-          entity: this.entity,
-          entityCrudString: this.entityCrudString,
-        });
+        this.renderViewList();
       });
+
+      this.renderViewList();
     }
 
     if (this.entityCrudString.includes('C')) {
