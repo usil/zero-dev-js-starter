@@ -228,15 +228,27 @@ class CreateNewEntityComponent {
             : {}),
         };
 
-        new AirDatepicker(`#inp-${inputField.name}`, {
-          locale: es,
-          ...(advancedSettings.datePickerConfig || {}),
-          dateFormat: (date) => {
-            const mDate = moment(date);
-            mDate.tz(window.variables.timeZone);
-            return mDate.format('Y-M-D');
-          },
-        });
+        if (
+          (advancedSettings.datePickerConfig &&
+            advancedSettings.datePickerConfig.view !== 'months') ||
+          advancedSettings === {} ||
+          advancedSettings.datePickerConfig === undefined
+        ) {
+          new AirDatepicker(`#inp-${inputField.name}`, {
+            locale: es,
+            ...(advancedSettings.datePickerConfig || {}),
+            dateFormat: (date) => {
+              const mDate = moment(date);
+              mDate.tz(window.variables.timeZone);
+              return mDate.format('Y-M-D');
+            },
+          });
+        } else {
+          new AirDatepicker(`#inp-${inputField.name}`, {
+            locale: es,
+            ...(advancedSettings.datePickerConfig || {}),
+          });
+        }
       }
       rules[inputField.name] =
         inputField.fieldViewConfiguration.validatorsConfiguration || {};

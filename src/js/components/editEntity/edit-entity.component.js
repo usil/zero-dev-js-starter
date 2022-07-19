@@ -238,16 +238,30 @@ class EditEntityComponent {
             : {}),
         };
 
-        new AirDatepicker(`#inp-${inputField.name}`, {
-          locale: es,
-          ...(advancedSettings.datePickerConfig || {}),
-          selectedDates: [inputField.currentValue],
-          dateFormat: (date) => {
-            const mDate = moment(date);
-            mDate.tz(window.variables.timeZone);
-            return mDate.format('Y-M-D');
-          },
-        });
+        if (
+          (advancedSettings.datePickerConfig &&
+            advancedSettings.datePickerConfig.view !== 'months') ||
+          advancedSettings === {} ||
+          advancedSettings.datePickerConfig === undefined
+        ) {
+          const parsedDate = moment(inputField.currentValue.split('T')[0]);
+
+          new AirDatepicker(`#inp-${inputField.name}`, {
+            locale: es,
+            ...(advancedSettings.datePickerConfig || {}),
+            selectedDates: [parsedDate.format('Y-M-D')],
+            dateFormat: (date) => {
+              const mDate = moment(date);
+              mDate.tz(window.variables.timeZone);
+              return mDate.format('Y-M-D');
+            },
+          });
+        } else {
+          new AirDatepicker(`#inp-${inputField.name}`, {
+            locale: es,
+            ...(advancedSettings.datePickerConfig || {}),
+          });
+        }
       }
 
       rules[inputField.name] =
