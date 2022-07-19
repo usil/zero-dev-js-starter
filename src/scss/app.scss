@@ -128,6 +128,20 @@ $lightblue: lightblue;
   display: none;
 }
 
+.dataTables_paginate {
+  right: 45px;
+  position: fixed;
+  margin-top: 25px !important;
+}
+
+#table-scroll {
+  overflow-x: auto;
+}
+
+th {
+  min-width: 100px;
+}
+
 .qs-overlay {
   position: absolute;
   top: 0;

@@ -246,6 +246,7 @@ class EntityDataListComponent {
         const eventHandler = (ev) => {
           if (ev.key === 'Enter' || ev.type === 'change') {
             $('.search-inputs').each((i, searchInput) => {
+              console.log(searchInput);
               const parent = $(searchInput);
               const inputs = parent.children();
               const searchObject = {
@@ -355,9 +356,8 @@ class EntityDataListComponent {
 
     const searchOperations = ['=', '>', '<', 'like'];
 
-    $('#entity-data-table thead tr:eq(0) th').each((i, h) => {
+    $('table thead tr:eq(0) th').each((i, h) => {
       const filterData = this.fields[i].fieldListConfiguration.filter;
-
       const title = $(h).text();
       $(h).html(
         `<div class="search-inputs" dtc="${i}">` +
