@@ -15,7 +15,7 @@ const opts = {
   devBuild: process.env.NODE_ENV !== 'production',
 };
 
-module.exports = {
+const webpackConfig = {
   entry: {
     app: './src/js/app.js',
   },
@@ -43,9 +43,6 @@ module.exports = {
   },
   plugins: [
     // Extract css files to seperate bundle
-    new CopyPlugin({
-      patterns: [{ from: 'static/index.html' }],
-    }),
     new MiniCssExtractPlugin({
       filename: 'css/app.css',
       chunkFilename: 'css/app.css',
@@ -157,3 +154,13 @@ module.exports = {
     open: true,
   },
 };
+
+if (process.env.NODE_ENV === 'production') {
+  webpackConfig.plugins.push(
+    new CopyPlugin({
+      patterns: [{ from: 'static/index.html' }],
+    }),
+  );
+}
+
+module.exports = webpackConfig;

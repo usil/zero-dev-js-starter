@@ -80,7 +80,7 @@ class CreateNewEntityComponent {
         indexOfField === -1
       ) {
         const fullFieldQuery = await axios.post(
-          `${this.zeroCodeBaseApi}/api/field_input_configuration/query?access_token=${this.access_key}&pagination=false`,
+          `${this.zeroCodeBaseApi}/api/field_visual_configuration/query?access_token=${this.access_key}&pagination=false`,
           {
             filters: [
               {
