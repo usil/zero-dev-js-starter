@@ -129,7 +129,7 @@ class EditEntityComponent {
           {
             filters: [
               {
-                column: 'fieldInputlConfigurationId',
+                column: 'fieldInputConfigurationId',
                 value: input.fieldViewConfiguration.id,
                 operation: '=',
                 negate: false,
